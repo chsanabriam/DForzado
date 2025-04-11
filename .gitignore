@@ -18,11 +18,11 @@ temp/
 *.tmp
 
 # Data and databases
-/docker/django-neo4j-project/django/db.sqlite3
-/docker/django-neo4j-project/django/dashboard/data/
-/docker/django-neo4j-project/django/red_consolidado.pickle
-/docker/django-neo4j-project/neo4j/data/
-/docker/django-neo4j-project/neo4j/logs/
+docker/django-neo4j-project/django/db.sqlite3
+docker/django-neo4j-project/django/dashboard/data/
+docker/django-neo4j-project/django/red_consolidado.pickle
+docker/django-neo4j-project/neo4j/data/
+docker/django-neo4j-project/neo4j/logs/
 
 
 # Dependency managers (uncomment the one(s) you use)
