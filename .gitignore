@@ -1,0 +1,44 @@
+# OS and Editor related files
+.DS_Store
+.Thumbs.db
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+_$*
+*~$
+*.swp
+*.swo
+.vscode/
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+*.tmp
+
+# Data and databases
+docker/django-neo4j-project/django/db.sqlite3
+docker/django-neo4j-project/django/dashboard/data/
+docker/django-neo4j-project/neo4j/data/
+docker/django-neo4j-project/neo4j/logs/
+
+
+# Dependency managers (uncomment the one(s) you use)
+# Python
+__pycache__/
+*.pyc
+*.pyd
+.venv/
+env/
+
+
+# Personal files (optional, but good to have)
+.history
+*.secret
+*.private
+credentials.json
+
+# Ignore files that might contain sensitive information
+config/
+.env

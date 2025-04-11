@@ -1,6 +1,6 @@
 # Django + Neo4j + Nginx Project
 
-Este proyecto integra Django, Neo4j y Nginx utilizando Docker para crear una aplicación web con una base de datos de grafos.
+Este proyecto integra Django, Neo4j y Nginx utilizando Docker para crear una aplicación web con una base de datos de grafos. Incluye un panel de control (dashboard) para visualizar y administrar los datos de Neo4j.
 
 ## Estructura del Proyecto
 
@@ -8,30 +8,64 @@ Este proyecto integra Django, Neo4j y Nginx utilizando Docker para crear una apl
 django-neo4j-project/
 ├── .env                     # Variables de entorno
 ├── docker-compose.yml       # Configuración de Docker Compose
-├── nginx/                   # Configuración de Nginx
+├── nginx/
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   ├── conf.d/
 │   │   └── default.conf
-│   └── static/              # Carpeta para archivos estáticos compartidos
-├── django/                  # Aplicación Django
+├── django/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   ├── entrypoint.sh
 │   ├── manage.py
-│   ├── myproject/
+│   ├── static/              # Archivos estáticos globales
+│   │   ├── css/             # CSS global
+│   │   ├── js/              # JS global
+│   │   ├── img/             # Imágenes globales
+│   │   ├── vendors/         # Librerías de terceros
+│   │   ├── dashboard/       # Estáticos específicos del dashboard
+│   │   │   ├── css/
+│   │   │   ├── js/
+│   │   │   └── img/
+│   │   └── otra_app/        # Estáticos para otras apps
+│   ├── templates/           # Templates globales
+│   │   ├── base.html        # Template base
+│   │   ├── dashboard/       # Templates del dashboard
+│   │   │   ├── index.html
+│   │   │   ├── components/
+│   │   │   │   ├── navbar.html
+│   │   │   │   ├── sidebar.html
+│   │   │   │   └── footer.html
+│   │   │   └── pages/
+│   │   │       ├── home.html
+│   │   │       ├── analytics.html
+│   │   │       └── settings.html
+│   │   └── otra_app/        # Templates para otras apps
+│   ├── myproject/           # Proyecto principal de Django
 │   │   ├── __init__.py
 │   │   ├── settings.py
 │   │   ├── urls.py
 │   │   ├── wsgi.py
-│   │   └── asgi.py
-│   └── static/              # Archivos estáticos de Django
-└── neo4j/                   # Base de datos Neo4j
-    ├── Dockerfile (opcional)
-    ├── data/                # Datos persistentes de Neo4j
-    ├── logs/                # Logs de Neo4j
-    └── conf/                # Configuración de Neo4j
-        └── neo4j.conf
+│   │   ├── asgi.py
+│   │   └── neo4j_driver.py
+│   ├── dashboard/           # App de dashboard
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   ├── forms.py
+│   │   ├── utils.py
+│   │   ├── services.py      # Servicios para interactuar con Neo4j
+│   │   └── tests/
+│   └── otra_app/            # Otras apps
+├── neo4j/
+│   ├── data/                # Datos de Neo4j
+│   ├── logs/                # Logs de Neo4j
+│   └── conf/                # Configuración de Neo4j
+│       └── neo4j.conf
+└── README.md
 ```
 
 ## Requisitos Previos
@@ -52,10 +86,18 @@ django-neo4j-project/
    cp .env.example .env
    ```
 
-3. Crea las carpetas necesarias para Neo4j (si usas bind mounts):
+3. Crea las carpetas necesarias para Neo4j y para los archivos estáticos/templates:
    ```bash
+   # Para Neo4j
    mkdir -p neo4j/data neo4j/logs neo4j/conf
    chmod -R 777 neo4j/data neo4j/logs neo4j/conf
+   
+   # Para Django
+   mkdir -p django/templates
+   mkdir -p django/templates/dashboard/components
+   mkdir -p django/templates/dashboard/pages
+   mkdir -p django/static/css django/static/js django/static/img django/static/vendors
+   mkdir -p django/static/dashboard/css django/static/dashboard/js django/static/dashboard/img
    ```
 
 ## Inicio del Proyecto
@@ -80,6 +122,7 @@ django-neo4j-project/
 ## Acceso a los Servicios
 
 - **Aplicación Django**: http://localhost
+- **Panel de Control**: http://localhost/dashboard/
 - **Neo4j Browser**: http://localhost:7474 (usuario: neo4j, contraseña: definida en `.env`)
 
 ## Desarrollo
@@ -100,6 +143,32 @@ docker-compose exec django python manage.py makemigrations
 docker-compose exec django python manage.py migrate
 docker-compose exec django python manage.py createsuperuser
 ```
+
+### Configuración de Templates y Archivos Estáticos
+
+El proyecto está configurado para buscar templates y archivos estáticos en las siguientes ubicaciones:
+
+- **Templates**: `django/templates/` (fuera de las apps)
+- **Archivos estáticos**: `django/static/` (fuera de las apps)
+
+Esto permite organizar los templates y archivos estáticos por app sin necesidad de incluirlos dentro de las carpetas de cada app.
+
+### Creando una nueva App
+
+Para crear una nueva app en el proyecto:
+
+```bash
+docker-compose exec django python manage.py startapp nueva_app
+```
+
+Después de crear la app:
+
+1. Añádela a `INSTALLED_APPS` en `settings.py`
+2. Crea las carpetas para templates y estáticos:
+   ```bash
+   mkdir -p django/templates/nueva_app
+   mkdir -p django/static/nueva_app/css django/static/nueva_app/js django/static/nueva_app/img
+   ```
 
 ### Trabajando con Neo4j
 
@@ -156,6 +225,16 @@ Si Neo4j muestra errores relacionados con SSL, asegúrate de tener las configura
     - NEO4J_dbms_connector_bolt_tls__level=DISABLED
   ```
 
+## Dashboard
+
+El panel de control (dashboard) proporciona una interfaz para visualizar y administrar los datos en Neo4j. Incluye:
+
+- Página principal con resumen de estadísticas
+- Página de análisis con visualización de relaciones
+- Página de configuración
+
+Para acceder al dashboard, navega a http://localhost/dashboard/ después de iniciar el proyecto.
+
 ## Parada del Proyecto
 
 Para detener los contenedores:
@@ -187,3 +266,5 @@ Este proyecto está configurado principalmente para desarrollo. Para un entorno 
 - **Nginx**: Servidor web y proxy inverso
 - **Docker**: Plataforma de contenedores
 - **Docker Compose**: Herramienta para definir y ejecutar aplicaciones Docker multi-contenedor
+- **Bootstrap**: Framework CSS para la interfaz de usuario
+- **Chart.js**: Biblioteca JavaScript para visualización de datos

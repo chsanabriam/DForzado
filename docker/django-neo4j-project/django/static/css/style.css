@@ -1,0 +1,83 @@
+/* Estilos generales */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Estilos para el sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: .5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Estilos para las tarjetas del dashboard */
+.card {
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Estilos para las gráficas */
+canvas {
+    max-height: 300px;
+}
+
+/* Estilos para tablas */
+.table-responsive {
+    margin-bottom: 1rem;
+}
+
+.table-sm th, .table-sm td {
+    padding: 0.5rem;
+}
+
+/* Estilos para la barra de navegación */
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Estilos para móviles */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: static;
+        height: auto;
+        padding-top: 0;
+    }
+    
+    .sidebar-sticky {
+        height: auto;
+    }
+    
+    canvas {
+        max-height: 250px;
+    }
+}

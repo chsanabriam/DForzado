@@ -30,7 +30,15 @@ SECRET_KEY = 'django-insecure-t1@ojv8@x4sk=ocbgg%1ff77_v1r_e84_h8y98wzr-2tl)-^46
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Orígenes permitidos para CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8690',  # El puerto que estás usando
+    'http://127.0.0.1:8690',
+    'http://localhost:8000',  # Puerto por defecto de Django
+    'http://127.0.0.1:8000',
+]
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -45,6 +53,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'whitenoise.runserver_nostatic',
     # Tus aplicaciones aquí
+    'dashboard',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Distribución por Unidad | Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include 'dashboard/components/sidebar.html' %}
+        
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Distribución por Unidad</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnExportarCSV">Exportar CSV</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnExportarPDF">Exportar PDF</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráficas -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Distribución por Unidad (Barras)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="graficaUnidadBar"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Distribución por Unidad (Horizontal)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="graficaUnidadHorizontal"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabla de datos -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Detalle de Registros por Unidad</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Unidad</th>
+                                            <th>Cantidad</th>
+                                            <th>Porcentaje</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for unidad in unidades %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ unidad.unidad }}</td>
+                                            <td>{{ unidad.cantidad }}</td>
+                                            <td>
+                                                {% widthratio unidad.cantidad total_spoa 100 %}%
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<!-- Chart.js -->
+<script src="{% static 'vendors/chart.js/chart.min.js' %}"></script>
+
+<script>
+    // Datos para las gráficas (pasados desde la vista)
+    const unidadesLabels = {{ unidades_labels|safe }};
+    const unidadesData = {{ unidades_data|safe }};
+    
+    // Colores para las gráficas
+    const coloresUnidades = generarColores(unidadesLabels.length);
+    
+    // Gráfica de distribución por unidad (Bar)
+    const ctxUnidadBar = document.getElementById('graficaUnidadBar').getContext('2d');
+    new Chart(ctxUnidadBar, {
+        type: 'bar',
+        data: {
+            labels: unidadesLabels,
+            datasets: [{
+                label: 'Número de registros',
+                data: unidadesData,
+                backgroundColor: coloresUnidades,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Gráfica de distribución por unidad (Horizontal)
+    const ctxUnidadHorizontal = document.getElementById('graficaUnidadHorizontal').getContext('2d');
+    new Chart(ctxUnidadHorizontal, {
+        type: 'bar',
+        data: {
+            labels: unidadesLabels,
+            datasets: [{
+                label: 'Número de registros',
+                data: unidadesData,
+                backgroundColor: coloresUnidades,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Exportar a CSV
+    document.getElementById('btnExportarCSV').addEventListener('click', function() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Unidad,Cantidad\n";
+        
+        for (let i = 0; i < unidadesLabels.length; i++) {
+            csvContent += unidadesLabels[i] + "," + unidadesData[i] + "\n";
+        }
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "distribucion_unidad.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>
+{% endblock %}

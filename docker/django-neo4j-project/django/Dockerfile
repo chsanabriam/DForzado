@@ -7,6 +7,11 @@ ENV PYTHONUNBUFFERED=1
 # Crear y establecer directorio de trabajo
 WORKDIR /app
 
+# Instalar dependencias del sistema incluyendo netcat
+RUN apt-get update && \
+    apt-get install -y netcat-traditional curl && \
+    rm -rf /var/lib/apt/lists/*
+
 # Instalar dependencias
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

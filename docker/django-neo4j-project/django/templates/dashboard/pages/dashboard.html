@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | Análisis de Datos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar (Incluido desde components/sidebar.html) -->
+        {% include 'dashboard/components/sidebar.html' %}
+        
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Exportar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tarjetas de resumen -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Registros SPOA</h5>
+                            <h2 class="card-text">{{ total_spoa }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Personas</h5>
+                            <h2 class="card-text">{{ total_personas }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráficas -->
+            <div class="row mb-4">
+                <!-- Gráfica de distribución por fuente -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Distribución por Fuente</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="graficaFuente"></canvas>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'dashboard:distribucion_fuente' %}" class="btn btn-sm btn-primary">Ver detalle</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gráfica de distribución por unidad -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Distribución por Unidad</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="graficaUnidad"></canvas>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'dashboard:distribucion_unidad' %}" class="btn btn-sm btn-primary">Ver detalle</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<!-- Chart.js -->
+<script src="{% static 'vendors/chart.js/chart.min.js' %}"></script>
+
+<script>
+    // Datos para las gráficas (pasados desde la vista)
+    const fuentesLabels = {{ fuentes_labels|safe }};
+    const fuentesData = {{ fuentes_data|safe }};
+    const unidadesLabels = {{ unidades_labels|safe }};
+    const unidadesData = {{ unidades_data|safe }};
+    
+    // Colores para las gráficas
+    const coloresFuentes = generarColores(fuentesLabels.length);
+    const coloresUnidades = generarColores(unidadesLabels.length);
+    
+    // Función para generar colores aleatorios
+    function generarColores(cantidad) {
+        const colores = [];
+        for (let i = 0; i < cantidad; i++) {
+            colores.push(`hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`);
+        }
+        return colores;
+    }
+    
+    // Gráfica de distribución por fuente (Pie)
+    const ctxFuente = document.getElementById('graficaFuente').getContext('2d');
+    new Chart(ctxFuente, {
+        type: 'pie',
+        data: {
+            labels: fuentesLabels,
+            datasets: [{
+                data: fuentesData,
+                backgroundColor: coloresFuentes,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+    
+    // Gráfica de distribución por unidad (Bar)
+    const ctxUnidad = document.getElementById('graficaUnidad').getContext('2d');
+    new Chart(ctxUnidad, {
+        type: 'bar',
+        data: {
+            labels: unidadesLabels,
+            datasets: [{
+                label: 'Número de registros',
+                data: unidadesData,
+                backgroundColor: coloresUnidades,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

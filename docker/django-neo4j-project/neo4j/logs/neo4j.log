@@ -391,3 +391,192 @@ Caused by: java.lang.IllegalStateException: Requested encryption level OPTIONAL 
 2025-04-10 00:26:34.789+0000 INFO  Neo4j Server shutdown initiated by request
 2025-04-10 00:26:34.790+0000 INFO  Stopping...
 2025-04-10 00:26:39.854+0000 INFO  Stopped.
+2025-04-10 22:49:36.280+0000 INFO  Logging config in use: Embedded default config 'default-user-logs.xml'
+2025-04-10 22:49:36.285+0000 WARN  Use of deprecated setting 'dbms.directories.data'. It is replaced by 'server.directories.data'.
+2025-04-10 22:49:36.285+0000 WARN  Use of deprecated setting 'dbms.directories.import'. It is replaced by 'server.directories.import'.
+2025-04-10 22:49:36.286+0000 WARN  Use of deprecated setting 'dbms.directories.logs'. It is replaced by 'server.directories.logs'.
+2025-04-10 22:49:36.287+0000 WARN  Use of deprecated setting 'dbms.connector.http.enabled'. It is replaced by 'server.http.enabled'.
+2025-04-10 22:49:36.288+0000 WARN  Use of deprecated setting 'dbms.connector.http.listen_address'. It is replaced by 'server.http.listen_address'.
+2025-04-10 22:49:36.289+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.listen_address'. It is replaced by 'server.bolt.listen_address'.
+2025-04-10 22:49:36.290+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.tls_level'. It is replaced by 'server.bolt.tls_level'.
+2025-04-10 22:49:36.291+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.enabled'. It is replaced by 'server.bolt.enabled'.
+2025-04-10 22:49:36.291+0000 WARN  Use of deprecated setting 'dbms.default_listen_address'. It is replaced by 'server.default_listen_address'.
+2025-04-10 22:49:36.292+0000 WARN  Use of deprecated setting 'dbms.default_advertised_address'. It is replaced by 'server.default_advertised_address'.
+2025-04-10 22:49:36.292+0000 WARN  Use of deprecated setting 'dbms.memory.pagecache.size'. It is replaced by 'server.memory.pagecache.size'.
+2025-04-10 22:49:36.293+0000 WARN  Use of deprecated setting 'dbms.memory.heap.max_size'. It is replaced by 'server.memory.heap.max_size'.
+2025-04-10 22:49:36.293+0000 WARN  Use of deprecated setting 'dbms.memory.heap.initial_size'. It is replaced by 'server.memory.heap.initial_size'.
+2025-04-10 22:49:36.294+0000 INFO  Starting...
+2025-04-10 22:49:37.586+0000 INFO  This instance is ServerId{acdcb086} (acdcb086-ae78-4e37-8ed7-e457745d9bfe)
+2025-04-10 22:49:37.994+0000 INFO  ======== Neo4j 5.13.0 ========
+2025-04-10 22:49:39.529+0000 INFO  Bolt enabled on 0.0.0.0:7687.
+2025-04-10 22:49:40.580+0000 INFO  HTTP enabled on 0.0.0.0:7474.
+2025-04-10 22:49:40.581+0000 INFO  Remote interface available at http://neo4j:7474/
+2025-04-10 22:49:40.583+0000 INFO  id: A3C179B7D0CE5EA541C34D20B29EC8CC9DB638C0DE411130C89E894B30789148
+2025-04-10 22:49:40.583+0000 INFO  name: system
+2025-04-10 22:49:40.584+0000 INFO  creationDate: 2025-04-09T21:21:49.299Z
+2025-04-10 22:49:40.584+0000 INFO  Started.
+2025-04-11 02:19:27.299+0000 INFO  Neo4j Server shutdown initiated by request
+2025-04-11 02:19:27.311+0000 INFO  Stopping...
+2025-04-11 02:19:32.644+0000 INFO  Stopped.
+2025-04-11 02:20:26.485+0000 INFO  Logging config in use: Embedded default config 'default-user-logs.xml'
+2025-04-11 02:20:26.489+0000 WARN  Use of deprecated setting 'dbms.directories.data'. It is replaced by 'server.directories.data'.
+2025-04-11 02:20:26.489+0000 WARN  Use of deprecated setting 'dbms.directories.import'. It is replaced by 'server.directories.import'.
+2025-04-11 02:20:26.490+0000 WARN  Use of deprecated setting 'dbms.directories.logs'. It is replaced by 'server.directories.logs'.
+2025-04-11 02:20:26.490+0000 WARN  Use of deprecated setting 'dbms.connector.http.enabled'. It is replaced by 'server.http.enabled'.
+2025-04-11 02:20:26.490+0000 WARN  Use of deprecated setting 'dbms.connector.http.listen_address'. It is replaced by 'server.http.listen_address'.
+2025-04-11 02:20:26.490+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.listen_address'. It is replaced by 'server.bolt.listen_address'.
+2025-04-11 02:20:26.491+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.tls_level'. It is replaced by 'server.bolt.tls_level'.
+2025-04-11 02:20:26.491+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.enabled'. It is replaced by 'server.bolt.enabled'.
+2025-04-11 02:20:26.491+0000 WARN  Use of deprecated setting 'dbms.default_listen_address'. It is replaced by 'server.default_listen_address'.
+2025-04-11 02:20:26.491+0000 WARN  Use of deprecated setting 'dbms.default_advertised_address'. It is replaced by 'server.default_advertised_address'.
+2025-04-11 02:20:26.491+0000 WARN  Use of deprecated setting 'dbms.memory.pagecache.size'. It is replaced by 'server.memory.pagecache.size'.
+2025-04-11 02:20:26.491+0000 WARN  Use of deprecated setting 'dbms.memory.heap.max_size'. It is replaced by 'server.memory.heap.max_size'.
+2025-04-11 02:20:26.491+0000 WARN  Use of deprecated setting 'dbms.memory.heap.initial_size'. It is replaced by 'server.memory.heap.initial_size'.
+2025-04-11 02:20:26.493+0000 INFO  Starting...
+2025-04-11 02:20:27.133+0000 INFO  This instance is ServerId{acdcb086} (acdcb086-ae78-4e37-8ed7-e457745d9bfe)
+2025-04-11 02:20:27.602+0000 INFO  ======== Neo4j 5.13.0 ========
+2025-04-11 02:20:28.727+0000 INFO  Bolt enabled on 0.0.0.0:7687.
+2025-04-11 02:20:29.194+0000 INFO  HTTP enabled on 0.0.0.0:7474.
+2025-04-11 02:20:29.195+0000 INFO  Remote interface available at http://neo4j:7474/
+2025-04-11 02:20:29.197+0000 INFO  id: A3C179B7D0CE5EA541C34D20B29EC8CC9DB638C0DE411130C89E894B30789148
+2025-04-11 02:20:29.197+0000 INFO  name: system
+2025-04-11 02:20:29.198+0000 INFO  creationDate: 2025-04-09T21:21:49.299Z
+2025-04-11 02:20:29.198+0000 INFO  Started.
+2025-04-11 11:01:12.324+0000 INFO  Neo4j Server shutdown initiated by request
+2025-04-11 11:01:12.326+0000 INFO  Stopping...
+2025-04-11 11:01:17.610+0000 INFO  Stopped.
+2025-04-11 11:03:06.939+0000 INFO  Logging config in use: Embedded default config 'default-user-logs.xml'
+2025-04-11 11:03:06.947+0000 WARN  Use of deprecated setting 'dbms.directories.data'. It is replaced by 'server.directories.data'.
+2025-04-11 11:03:06.947+0000 WARN  Use of deprecated setting 'dbms.directories.import'. It is replaced by 'server.directories.import'.
+2025-04-11 11:03:06.947+0000 WARN  Use of deprecated setting 'dbms.directories.logs'. It is replaced by 'server.directories.logs'.
+2025-04-11 11:03:06.947+0000 WARN  Use of deprecated setting 'dbms.connector.http.enabled'. It is replaced by 'server.http.enabled'.
+2025-04-11 11:03:06.948+0000 WARN  Use of deprecated setting 'dbms.connector.http.listen_address'. It is replaced by 'server.http.listen_address'.
+2025-04-11 11:03:06.948+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.listen_address'. It is replaced by 'server.bolt.listen_address'.
+2025-04-11 11:03:06.948+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.tls_level'. It is replaced by 'server.bolt.tls_level'.
+2025-04-11 11:03:06.948+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.enabled'. It is replaced by 'server.bolt.enabled'.
+2025-04-11 11:03:06.948+0000 WARN  Use of deprecated setting 'dbms.default_listen_address'. It is replaced by 'server.default_listen_address'.
+2025-04-11 11:03:06.948+0000 WARN  Use of deprecated setting 'dbms.default_advertised_address'. It is replaced by 'server.default_advertised_address'.
+2025-04-11 11:03:06.949+0000 WARN  Use of deprecated setting 'dbms.memory.pagecache.size'. It is replaced by 'server.memory.pagecache.size'.
+2025-04-11 11:03:06.949+0000 WARN  Use of deprecated setting 'dbms.memory.heap.max_size'. It is replaced by 'server.memory.heap.max_size'.
+2025-04-11 11:03:06.949+0000 WARN  Use of deprecated setting 'dbms.memory.heap.initial_size'. It is replaced by 'server.memory.heap.initial_size'.
+2025-04-11 11:03:06.950+0000 INFO  Starting...
+2025-04-11 11:03:10.892+0000 INFO  This instance is ServerId{acdcb086} (acdcb086-ae78-4e37-8ed7-e457745d9bfe)
+2025-04-11 11:03:11.770+0000 INFO  ======== Neo4j 5.13.0 ========
+2025-04-11 11:03:13.167+0000 INFO  Bolt enabled on 0.0.0.0:7687.
+2025-04-11 11:03:13.711+0000 INFO  HTTP enabled on 0.0.0.0:7474.
+2025-04-11 11:03:13.711+0000 INFO  Remote interface available at http://neo4j:7474/
+2025-04-11 11:03:13.713+0000 INFO  id: A3C179B7D0CE5EA541C34D20B29EC8CC9DB638C0DE411130C89E894B30789148
+2025-04-11 11:03:13.714+0000 INFO  name: system
+2025-04-11 11:03:13.714+0000 INFO  creationDate: 2025-04-09T21:21:49.299Z
+2025-04-11 11:03:13.714+0000 INFO  Started.
+2025-04-11 11:12:58.246+0000 INFO  Neo4j Server shutdown initiated by request
+2025-04-11 11:12:58.252+0000 INFO  Stopping...
+2025-04-11 11:13:03.556+0000 INFO  Stopped.
+2025-04-11 11:33:46.640+0000 INFO  Logging config in use: Embedded default config 'default-user-logs.xml'
+2025-04-11 11:33:46.645+0000 WARN  Use of deprecated setting 'dbms.directories.data'. It is replaced by 'server.directories.data'.
+2025-04-11 11:33:46.645+0000 WARN  Use of deprecated setting 'dbms.directories.import'. It is replaced by 'server.directories.import'.
+2025-04-11 11:33:46.646+0000 WARN  Use of deprecated setting 'dbms.directories.logs'. It is replaced by 'server.directories.logs'.
+2025-04-11 11:33:46.646+0000 WARN  Use of deprecated setting 'dbms.connector.http.enabled'. It is replaced by 'server.http.enabled'.
+2025-04-11 11:33:46.646+0000 WARN  Use of deprecated setting 'dbms.connector.http.listen_address'. It is replaced by 'server.http.listen_address'.
+2025-04-11 11:33:46.646+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.listen_address'. It is replaced by 'server.bolt.listen_address'.
+2025-04-11 11:33:46.646+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.tls_level'. It is replaced by 'server.bolt.tls_level'.
+2025-04-11 11:33:46.647+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.enabled'. It is replaced by 'server.bolt.enabled'.
+2025-04-11 11:33:46.647+0000 WARN  Use of deprecated setting 'dbms.default_listen_address'. It is replaced by 'server.default_listen_address'.
+2025-04-11 11:33:46.647+0000 WARN  Use of deprecated setting 'dbms.default_advertised_address'. It is replaced by 'server.default_advertised_address'.
+2025-04-11 11:33:46.647+0000 WARN  Use of deprecated setting 'dbms.memory.pagecache.size'. It is replaced by 'server.memory.pagecache.size'.
+2025-04-11 11:33:46.647+0000 WARN  Use of deprecated setting 'dbms.memory.heap.max_size'. It is replaced by 'server.memory.heap.max_size'.
+2025-04-11 11:33:46.648+0000 WARN  Use of deprecated setting 'dbms.memory.heap.initial_size'. It is replaced by 'server.memory.heap.initial_size'.
+2025-04-11 11:33:46.649+0000 INFO  Starting...
+2025-04-11 11:33:47.228+0000 INFO  This instance is ServerId{acdcb086} (acdcb086-ae78-4e37-8ed7-e457745d9bfe)
+2025-04-11 11:33:47.642+0000 INFO  ======== Neo4j 5.13.0 ========
+2025-04-11 11:33:48.569+0000 INFO  Bolt enabled on 0.0.0.0:7687.
+2025-04-11 11:33:49.037+0000 INFO  HTTP enabled on 0.0.0.0:7474.
+2025-04-11 11:33:49.038+0000 INFO  Remote interface available at http://neo4j:7474/
+2025-04-11 11:33:49.042+0000 INFO  id: A3C179B7D0CE5EA541C34D20B29EC8CC9DB638C0DE411130C89E894B30789148
+2025-04-11 11:33:49.042+0000 INFO  name: system
+2025-04-11 11:33:49.043+0000 INFO  creationDate: 2025-04-09T21:21:49.299Z
+2025-04-11 11:33:49.043+0000 INFO  Started.
+2025-04-11 14:41:12.557+0000 INFO  Neo4j Server shutdown initiated by request
+2025-04-11 14:41:12.563+0000 INFO  Stopping...
+2025-04-11 14:41:17.903+0000 INFO  Stopped.
+2025-04-11 14:44:28.179+0000 INFO  Logging config in use: Embedded default config 'default-user-logs.xml'
+2025-04-11 14:44:28.182+0000 WARN  Use of deprecated setting 'dbms.directories.data'. It is replaced by 'server.directories.data'.
+2025-04-11 14:44:28.182+0000 WARN  Use of deprecated setting 'dbms.directories.import'. It is replaced by 'server.directories.import'.
+2025-04-11 14:44:28.183+0000 WARN  Use of deprecated setting 'dbms.directories.logs'. It is replaced by 'server.directories.logs'.
+2025-04-11 14:44:28.183+0000 WARN  Use of deprecated setting 'dbms.connector.http.enabled'. It is replaced by 'server.http.enabled'.
+2025-04-11 14:44:28.183+0000 WARN  Use of deprecated setting 'dbms.connector.http.listen_address'. It is replaced by 'server.http.listen_address'.
+2025-04-11 14:44:28.183+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.listen_address'. It is replaced by 'server.bolt.listen_address'.
+2025-04-11 14:44:28.183+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.tls_level'. It is replaced by 'server.bolt.tls_level'.
+2025-04-11 14:44:28.184+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.enabled'. It is replaced by 'server.bolt.enabled'.
+2025-04-11 14:44:28.184+0000 WARN  Use of deprecated setting 'dbms.default_listen_address'. It is replaced by 'server.default_listen_address'.
+2025-04-11 14:44:28.184+0000 WARN  Use of deprecated setting 'dbms.default_advertised_address'. It is replaced by 'server.default_advertised_address'.
+2025-04-11 14:44:28.184+0000 WARN  Use of deprecated setting 'dbms.memory.pagecache.size'. It is replaced by 'server.memory.pagecache.size'.
+2025-04-11 14:44:28.185+0000 WARN  Use of deprecated setting 'dbms.memory.heap.max_size'. It is replaced by 'server.memory.heap.max_size'.
+2025-04-11 14:44:28.185+0000 WARN  Use of deprecated setting 'dbms.memory.heap.initial_size'. It is replaced by 'server.memory.heap.initial_size'.
+2025-04-11 14:44:28.186+0000 INFO  Starting...
+2025-04-11 14:44:29.609+0000 INFO  This instance is ServerId{acdcb086} (acdcb086-ae78-4e37-8ed7-e457745d9bfe)
+2025-04-11 14:44:30.223+0000 INFO  ======== Neo4j 5.13.0 ========
+2025-04-11 14:44:31.478+0000 INFO  Bolt enabled on 0.0.0.0:7687.
+2025-04-11 14:44:32.139+0000 INFO  HTTP enabled on 0.0.0.0:7474.
+2025-04-11 14:44:32.140+0000 INFO  Remote interface available at http://neo4j:7474/
+2025-04-11 14:44:32.142+0000 INFO  id: A3C179B7D0CE5EA541C34D20B29EC8CC9DB638C0DE411130C89E894B30789148
+2025-04-11 14:44:32.143+0000 INFO  name: system
+2025-04-11 14:44:32.143+0000 INFO  creationDate: 2025-04-09T21:21:49.299Z
+2025-04-11 14:44:32.143+0000 INFO  Started.
+2025-04-11 15:20:28.445+0000 INFO  Logging config in use: Embedded default config 'default-user-logs.xml'
+2025-04-11 15:20:28.451+0000 WARN  Use of deprecated setting 'dbms.directories.data'. It is replaced by 'server.directories.data'.
+2025-04-11 15:20:28.451+0000 WARN  Use of deprecated setting 'dbms.directories.import'. It is replaced by 'server.directories.import'.
+2025-04-11 15:20:28.452+0000 WARN  Use of deprecated setting 'dbms.directories.logs'. It is replaced by 'server.directories.logs'.
+2025-04-11 15:20:28.452+0000 WARN  Use of deprecated setting 'dbms.connector.http.enabled'. It is replaced by 'server.http.enabled'.
+2025-04-11 15:20:28.453+0000 WARN  Use of deprecated setting 'dbms.connector.http.listen_address'. It is replaced by 'server.http.listen_address'.
+2025-04-11 15:20:28.453+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.listen_address'. It is replaced by 'server.bolt.listen_address'.
+2025-04-11 15:20:28.453+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.tls_level'. It is replaced by 'server.bolt.tls_level'.
+2025-04-11 15:20:28.453+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.enabled'. It is replaced by 'server.bolt.enabled'.
+2025-04-11 15:20:28.453+0000 WARN  Use of deprecated setting 'dbms.default_listen_address'. It is replaced by 'server.default_listen_address'.
+2025-04-11 15:20:28.454+0000 WARN  Use of deprecated setting 'dbms.default_advertised_address'. It is replaced by 'server.default_advertised_address'.
+2025-04-11 15:20:28.454+0000 WARN  Use of deprecated setting 'dbms.memory.pagecache.size'. It is replaced by 'server.memory.pagecache.size'.
+2025-04-11 15:20:28.454+0000 WARN  Use of deprecated setting 'dbms.memory.heap.max_size'. It is replaced by 'server.memory.heap.max_size'.
+2025-04-11 15:20:28.454+0000 WARN  Use of deprecated setting 'dbms.memory.heap.initial_size'. It is replaced by 'server.memory.heap.initial_size'.
+2025-04-11 15:20:28.456+0000 INFO  Starting...
+2025-04-11 15:20:29.124+0000 INFO  This instance is ServerId{acdcb086} (acdcb086-ae78-4e37-8ed7-e457745d9bfe)
+2025-04-11 15:20:29.726+0000 INFO  ======== Neo4j 5.13.0 ========
+2025-04-11 15:20:30.936+0000 INFO  Bolt enabled on 0.0.0.0:7687.
+2025-04-11 15:20:31.516+0000 INFO  HTTP enabled on 0.0.0.0:7474.
+2025-04-11 15:20:31.517+0000 INFO  Remote interface available at http://neo4j:7474/
+2025-04-11 15:20:31.519+0000 INFO  id: A3C179B7D0CE5EA541C34D20B29EC8CC9DB638C0DE411130C89E894B30789148
+2025-04-11 15:20:31.519+0000 INFO  name: system
+2025-04-11 15:20:31.520+0000 INFO  creationDate: 2025-04-09T21:21:49.299Z
+2025-04-11 15:20:31.520+0000 INFO  Started.
+2025-04-11 16:43:57.673+0000 INFO  Neo4j Server shutdown initiated by request
+2025-04-11 16:43:57.709+0000 INFO  Stopping...
+2025-04-11 16:44:03.457+0000 INFO  Stopped.
+2025-04-11 16:44:54.632+0000 INFO  Logging config in use: Embedded default config 'default-user-logs.xml'
+2025-04-11 16:44:54.636+0000 WARN  Use of deprecated setting 'dbms.directories.data'. It is replaced by 'server.directories.data'.
+2025-04-11 16:44:54.639+0000 WARN  Use of deprecated setting 'dbms.directories.import'. It is replaced by 'server.directories.import'.
+2025-04-11 16:44:54.639+0000 WARN  Use of deprecated setting 'dbms.directories.logs'. It is replaced by 'server.directories.logs'.
+2025-04-11 16:44:54.639+0000 WARN  Use of deprecated setting 'dbms.connector.http.enabled'. It is replaced by 'server.http.enabled'.
+2025-04-11 16:44:54.639+0000 WARN  Use of deprecated setting 'dbms.connector.http.listen_address'. It is replaced by 'server.http.listen_address'.
+2025-04-11 16:44:54.640+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.listen_address'. It is replaced by 'server.bolt.listen_address'.
+2025-04-11 16:44:54.640+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.tls_level'. It is replaced by 'server.bolt.tls_level'.
+2025-04-11 16:44:54.640+0000 WARN  Use of deprecated setting 'dbms.connector.bolt.enabled'. It is replaced by 'server.bolt.enabled'.
+2025-04-11 16:44:54.640+0000 WARN  Use of deprecated setting 'dbms.default_listen_address'. It is replaced by 'server.default_listen_address'.
+2025-04-11 16:44:54.640+0000 WARN  Use of deprecated setting 'dbms.default_advertised_address'. It is replaced by 'server.default_advertised_address'.
+2025-04-11 16:44:54.640+0000 WARN  Use of deprecated setting 'dbms.memory.pagecache.size'. It is replaced by 'server.memory.pagecache.size'.
+2025-04-11 16:44:54.641+0000 WARN  Use of deprecated setting 'dbms.memory.heap.max_size'. It is replaced by 'server.memory.heap.max_size'.
+2025-04-11 16:44:54.641+0000 WARN  Use of deprecated setting 'dbms.memory.heap.initial_size'. It is replaced by 'server.memory.heap.initial_size'.
+2025-04-11 16:44:54.642+0000 INFO  Starting...
+2025-04-11 16:44:55.725+0000 INFO  This instance is ServerId{acdcb086} (acdcb086-ae78-4e37-8ed7-e457745d9bfe)
+2025-04-11 16:44:56.262+0000 INFO  ======== Neo4j 5.13.0 ========
+2025-04-11 16:44:57.382+0000 INFO  Bolt enabled on 0.0.0.0:7687.
+2025-04-11 16:44:58.022+0000 INFO  HTTP enabled on 0.0.0.0:7474.
+2025-04-11 16:44:58.023+0000 INFO  Remote interface available at http://neo4j:7474/
+2025-04-11 16:44:58.024+0000 INFO  id: A3C179B7D0CE5EA541C34D20B29EC8CC9DB638C0DE411130C89E894B30789148
+2025-04-11 16:44:58.025+0000 INFO  name: system
+2025-04-11 16:44:58.025+0000 INFO  creationDate: 2025-04-09T21:21:49.299Z
+2025-04-11 16:44:58.026+0000 INFO  Started.
+2025-04-11 18:49:27.587+0000 WARN  [bolt-12] The client is unauthorized due to authentication failure.
+2025-04-11 18:49:27.604+0000 WARN  [bolt-13] The client is unauthorized due to authentication failure.
+2025-04-11 18:49:27.629+0000 WARN  [bolt-14] The client is unauthorized due to authentication failure.
+2025-04-11 19:28:46.014+0000 INFO  Neo4j Server shutdown initiated by request
+2025-04-11 19:28:46.016+0000 INFO  Stopping...
+2025-04-11 19:28:51.164+0000 INFO  Stopped.
