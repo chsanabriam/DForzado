@@ -36,13 +36,28 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
         print(f"Usando chunksize de {chunksize} registros")
         
         # Primera pasada: agregar todos los nodos NUNC
+        # Si solo se usa nunc se puede usar enumerate(pd.read_csv(ruta_archivo, chunksize=chunksize, usecols=['nunc'], sep="|"))
+        # En caso contrario quitar la opción usecols
         print("Primera pasada: Agregando nodos NUNC...")
-        for chunk_idx, chunk in enumerate(pd.read_csv(ruta_archivo, chunksize=chunksize, usecols=['nunc'], sep="|")):
+        for chunk_idx, chunk in enumerate(pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|")):
             nunc_counter = 0
             for _, row in chunk.iterrows():
                 nunc = str(row.get('nunc', '')).strip()
+                necropsia = str(row.get('necropsia', '')).strip()
+                seccional = str(row.get('seccional', '')).strip()
+                unidad = str(row.get('unidad', '')).strip()
+                despacho = str(row.get('despacho', '')).strip()
+                fuente = str(row.get('fuente', '')).strip()
                 if nunc and nunc not in G:
-                    G.add_node(nunc, name=nunc, tipo='nunc')
+                    G.add_node(nunc, 
+                                name=nunc, 
+                                tipo='nunc', 
+                                necropsia=necropsia,
+                                seccional=seccional,
+                                unidad=unidad,
+                                despacho=despacho,
+                                fuente=fuente
+                            )
                     nunc_counter += 1
             
             processed_rows += len(chunk)
@@ -100,7 +115,15 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
         # Usar el método no_cache para evitar cargar todo en memoria
         for i in range(0, total_nuncs, batch_size):
             for spoa in ConsolidadoSpoa.objects.all()[i:i+batch_size]:
-                G.add_node(spoa.nunc, name=spoa.nunc, tipo='nunc')
+                G.add_node(spoa.nunc, 
+                            name=spoa.nunc, 
+                            tipo='nunc',
+                            necropsia=spoa.necropsia,
+                            seccional=spoa.seccional,
+                            unidad=spoa.unidad,
+                            despacho=spoa.despacho,
+                            fuente=spoa.fuente
+                        )
                 count += 1
                 if count % 10000 == 0:
                     print(f"Procesados {count} nodos NUNC")
@@ -138,31 +161,60 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
     print("Calculando componentes conectadas...")
     # Calcular componentes conectadas y asignarlas como atributo
     # Para grafos grandes, usamos una aproximación por lotes
-    
+
     print("Creando diccionario para mapear componentes...")
     nodo_a_componente = {}
-    
+
     # Para grafos muy grandes, podemos calcular componentes por lotes
     print("Calculando componentes...")
     if len(G) > 1000000:  # Para grafos extremadamente grandes
-        # Calcular componentes progresivamente
+        # Paso 1: Obtener todas las componentes
         print("Grafo muy grande: calculando componentes progresivamente...")
-        for i, comp in enumerate(connected_components(G)):
+        componentes = []
+        for comp in connected_components(G):
+            componentes.append(list(comp))
+            if len(componentes) % 1000 == 0:
+                print(f"Descubiertas {len(componentes)} componentes...")
+        
+        # Paso 2: Ordenar componentes por tamaño (de mayor a menor)
+        print("Ordenando componentes por tamaño...")
+        componentes_ordenadas = sorted(componentes, key=len, reverse=True)
+        
+        # Paso 3: Asignar índices a los nodos según el tamaño de su componente
+        print("Asignando índices ordenados a los nodos...")
+        for i, comp in enumerate(componentes_ordenadas):
             for nodo in comp:
                 nodo_a_componente[nodo] = i
             
             if i % 1000 == 0 and i > 0:
-                print(f"Procesadas {i} componentes...")
+                print(f"Procesadas {i} componentes ordenadas...")
     else:
         # Método estándar para grafos de tamaño moderado
+        print("Calculando y ordenando componentes...")
         componentes = list(connected_components(G))
-        for i, comp in enumerate(componentes):
+        
+        # Ordenar componentes por tamaño (de mayor a menor)
+        componentes_ordenadas = sorted(componentes, key=len, reverse=True)
+        
+        print(f"Se encontraron {len(componentes_ordenadas)} componentes")
+        print(f"La componente más grande tiene {len(componentes_ordenadas[0])} nodos")
+        
+        for i, comp in enumerate(componentes_ordenadas):
             for nodo in comp:
                 nodo_a_componente[nodo] = i
     
     print("Asignando componentes a los nodos...")
     # Asignar el número de componente como atributo a cada nodo
     nx.set_node_attributes(G, nodo_a_componente, 'componente')
+    
+    print("Calcular la centralidad de grado y el grado...")
+    # Calcular diferentes métricas de centralidad
+    # degree_centrality = nx.degree_centrality(G)
+    degree = dict(nx.degree(G))
+    
+    # Asociar las métricas a los nodos como atributos
+    # nx.set_node_attributes(G, degree_centrality, 'centralidad_grado')
+    nx.set_node_attributes(G, degree, 'grado')
     
     # Calcular estadísticas finales
     num_componentes = len(set(nodo_a_componente.values()))

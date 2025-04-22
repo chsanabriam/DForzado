@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ConsolidadoSpoa, PersonasDf
+from .models import ConsolidadoSpoa, PersonasDf, RegistroUnicoDesaparecidos
 
 # Register your models here.
 
@@ -13,7 +13,14 @@ class ConsolidadoSpoaAdmin(admin.ModelAdmin):
 
 @admin.register(PersonasDf)
 class PersonasDfAdmin(admin.ModelAdmin):
-    list_display = ('numero_identificacion', 'nombre_completo', 'desaparcion_forzada','homicidio', 'secuestro', 'reclutamiento_ilicito')
-    list_filter = ('desaparcion_forzada', 'homicidio', 'secuestro', 'reclutamiento_ilicito')
+    list_display = ('numero_identificacion', 'nombre_completo', 'desaparcion_forzada','homicidio', 'secuestro', 'reclutamiento_ilicito', 'rud')
+    list_filter = ('desaparcion_forzada', 'homicidio', 'secuestro', 'reclutamiento_ilicito', 'rud')
     search_fields = ('numero_identificacion', 'nombre_completo')
+    list_per_page = 20
+    
+@admin.register(RegistroUnicoDesaparecidos)
+class RegistroUnicoDesaparecidosAdmin(admin.ModelAdmin):
+    list_display = ('numero_documento', 'nombre_completo', 'numero_radicado', 'fecha_desaparicion', 'estado_desaparicion')
+    list_filter = ('numero_documento', 'nombre_completo', 'numero_radicado', 'fecha_desaparicion', 'estado_desaparicion')
+    search_fields = ('numero_documento', 'nombre_completo')
     list_per_page = 20

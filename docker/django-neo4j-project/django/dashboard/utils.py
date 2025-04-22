@@ -3,7 +3,7 @@ import csv
 import os
 from datetime import datetime
 from django.db import transaction
-from .models import ConsolidadoSpoa, PersonasDf
+from .models import ConsolidadoSpoa, PersonasDf, RegistroUnicoDesaparecidos
 
 def parse_date(date_str):
     """
@@ -118,6 +118,7 @@ def cargar_personas_df(ruta_archivo):
                 homicidio = row.get('homicidio', 0)
                 secuestro = row.get('secuestro', 0)
                 reclutamiento = row.get('reclutamiento_ilicito', 0)
+                rud = row.get('rud', 0)
                 
                 # Asegurarse de que los valores sean enteros o booleanos antes de la conversión
                 if not pd.isna(desaparicion):
@@ -139,6 +140,11 @@ def cargar_personas_df(ruta_archivo):
                     reclutamiento = int(reclutamiento) == 1
                 else:
                     reclutamiento = False
+                    
+                if not pd.isna(rud):
+                    rud = int(rud) == 1
+                else:
+                    rud = False
                 
                 registro = PersonasDf(
                     numero_identificacion=str(row.get('numero_documento', '')).strip(),
@@ -146,13 +152,72 @@ def cargar_personas_df(ruta_archivo):
                     desaparcion_forzada=desaparicion,
                     homicidio=homicidio,
                     secuestro=secuestro,
-                    reclutamiento_ilicito=reclutamiento
+                    reclutamiento_ilicito=reclutamiento,
+                    rud=rud
                 )
                 registros.append(registro)
             
             # Insertar en bulk (mucho más eficiente que uno por uno)
             # El parámetro ignore_conflicts evita errores por duplicados
             PersonasDf.objects.bulk_create(registros, ignore_conflicts=True)
+            counter += len(registros)
+            
+        return counter
+    else:
+        raise ValueError(f"Formato de archivo no soportado: {extension}")
+
+@transaction.atomic
+def cargar_rud(ruta_archivo):
+    """
+    Carga datos desde un archivo CSV al modelo RegistroUnicoDesaparecidos
+    
+    Args:
+        ruta_archivo: Ruta al archivo CSV que contiene los datos
+        
+    Returns:
+        int: Número de registros cargados
+    """
+    # Verificar que el archivo existe
+    if not os.path.exists(ruta_archivo):
+        raise FileNotFoundError(f"El archivo {ruta_archivo} no existe")
+    
+    # Si el archivo es muy grande, usar chunks con pandas
+    chunksize = 10000
+    counter = 0
+    
+    # Verificar la extensión del archivo
+    _, extension = os.path.splitext(ruta_archivo)
+    
+    if extension.lower() == '.csv':
+        # Leer el archivo en chunks para manejar archivos grandes
+        for chunk in pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|"):
+            registros = []
+            
+            for _, row in chunk.iterrows():
+                # Crear objeto pero no guardar aún (bulk_create es más eficiente)
+                registro = RegistroUnicoDesaparecidos(
+                    numero_radicado=str(row.get('numero_radicado', '')).strip(),
+                    nombre_completo=str(row.get('nombre_completo', '')).strip(),
+                    tipo_documento=str(row.get('tipo_documento', '')).strip(),
+                    numero_documento=str(row.get('numero_documento', '')).strip(),
+                    departamento_desaparicion=str(row.get('departamento_desaparicion', '')).strip(),
+                    municipio_desaparicion=str(row.get('municipio_desaparicion', '')).strip(),
+                    barrio_vereda_desaparicion=str(row.get('barrio/vereda_desaparicion', '')).strip(),
+                    fecha_desaparicion=parse_date(row.get('fecha_desaparicion')),
+                    sexo=str(row.get('sexo', '')).strip(),
+                    edad_1=row.get('edad_1') if not pd.isna(row.get('edad_1')) else None,
+                    edad_2=row.get('edad_2') if not pd.isna(row.get('edad_2')) else None,
+                    estatura_1=row.get('estatura_1') if not pd.isna(row.get('estatura_1')) else None,
+                    estatura_2=row.get('estatura_2') if not pd.isna(row.get('estatura_2')) else None,
+                    ancestro_racial=str(row.get('ancestro_racial', '')).strip(),
+                    estado_desaparicion=str(row.get('estado_desaparicion', '')).strip(),
+                    senales_particulares=str(row.get('senales_particulares', '')).strip()
+                )
+                registros.append(registro)
+            
+            # Insertar en bulk (mucho más eficiente que uno por uno)
+            # El parámetro ignore_conflicts evita errores por duplicados
+            RegistroUnicoDesaparecidos.objects.bulk_create(registros, ignore_conflicts=True)
             counter += len(registros)
             
         return counter

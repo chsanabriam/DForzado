@@ -11,6 +11,7 @@ echo "Neo4j está disponible"
 python manage.py collectstatic --no-input
 
 # Ejecutar migraciones
+python manage.py makemigrations
 python manage.py migrate
 
 # Iniciar Gunicorn

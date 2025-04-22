@@ -249,6 +249,115 @@ Para detener y eliminar los volúmenes (¡perderás los datos!):
 docker-compose down -v
 ```
 
+## Gestión de Datos y Análisis de Redes
+
+Este proyecto incluye scripts para cargar datos desde archivos CSV, crear redes de análisis usando NetworkX y almacenar/gestionar estas redes en Neo4j.
+
+### Carga de Datos
+
+Los datos de SPOA y personas pueden cargarse desde archivos CSV a la base de datos Django utilizando el siguiente comando:
+
+```bash
+# Cargar todos los datos
+python manage.py cargar_datos
+
+# Cargar solo datos de consolidado SPOA
+python manage.py cargar_datos --consolidado
+
+# Cargar solo datos de personas
+python manage.py cargar_datos --personas
+```
+
+Los archivos CSV deben estar ubicados en la carpeta `dashboard/data/` con los siguientes nombres:
+- `consolidado_delitos_2025-04-09.csv`
+- `personas_delitos_2025-04-09.csv`
+
+Para preparar la estructura de carpetas necesaria, ejecute:
+
+```bash
+python manage.py preparar_carpetas
+```
+
+### Creación de Redes en Neo4j
+
+El proyecto incluye funcionalidades para crear una red no dirigida a partir de los datos del SPOA, donde los nodos son los NUNC y las personas, y los enlaces representan las relaciones entre ellos con atributos de calidad de vínculo.
+
+#### Comando básico:
+
+```bash
+python manage.py crear_red_neo4j
+```
+
+#### Opciones disponibles:
+
+```bash
+# Usar un archivo CSV específico
+python manage.py crear_red_neo4j --archivo="path/to/consolidado_delitos_2025-04-09.csv"
+
+# No calcular métricas de centralidad (más rápido para redes grandes)
+python manage.py crear_red_neo4j --sin-metricas
+
+# Ajustar el tamaño del chunk para procesar el CSV
+python manage.py crear_red_neo4j --chunksize=100000
+
+# Ajustar el tamaño del lote para operaciones en Neo4j
+python manage.py crear_red_neo4j --batch-size=1000
+
+# Solo crear la red en memoria (no guardarla en Neo4j)
+python manage.py crear_red_neo4j --solo-red
+
+# Solo guardar una red previamente creada en Neo4j
+python manage.py crear_red_neo4j --solo-guardar
+```
+
+#### Ejemplos de uso:
+
+```bash
+# Proceso completo con archivo CSV y tamaños de lote optimizados
+python manage.py crear_red_neo4j --archivo="data/consolidado_delitos_2025-04-09.csv" --chunksize=100000 --batch-size=1000
+
+# Para archivos muy grandes, proceso en dos etapas:
+# 1. Primero crear solo la red (no la guarda en Neo4j)
+python manage.py crear_red_neo4j --archivo="data/consolidado_delitos_2025-04-09.csv" --solo-red --chunksize=100000
+# 2. Luego guardar la red en Neo4j 
+python manage.py crear_red_neo4j --solo-guardar --batch-size=1000
+
+# Para redes de tamaño moderado con todas las métricas
+python manage.py crear_red_neo4j --chunksize=50000 --batch-size=5000
+```
+
+### Limpieza de Neo4j
+
+Para eliminar todos los nodos y relaciones de la base de datos Neo4j:
+
+```bash
+python manage.py limpiar_neo4j
+```
+
+Este comando elimina progresivamente relaciones y nodos en pequeños lotes para evitar problemas de memoria.
+
+También está disponible un script independiente para casos donde se necesite una limpieza de muy bajo uso de memoria:
+
+```bash
+# Ejecutar con tamaño de lote por defecto (100)
+python clean_neo4j.py
+
+# Especificar un tamaño de lote más pequeño
+python clean_neo4j.py 50
+```
+
+### Consideraciones de Rendimiento
+
+- Para archivos grandes (más de 1 millón de registros), aumente el `chunksize` para la lectura de CSV y reduzca el `batch-size` para operaciones en Neo4j.
+- Si encuentra errores de memoria en Neo4j, ajuste la configuración en `neo4j.conf`:
+  ```
+  dbms.memory.transaction.total.max=4g
+  ```
+- El procesamiento en etapas (usando `--solo-red` seguido de `--solo-guardar`) permite manejar redes extremadamente grandes.
+- Para visualizaciones y consultas rápidas, acceda a Neo4j Browser en http://localhost:7474/browser/
+
+Si se quiere eliminar desde el navegador se debe ejecutar el comando: "MATCH (n) DETACH DELETE n"
+
 ## Producción
 
 Este proyecto está configurado principalmente para desarrollo. Para un entorno de producción, considera:
