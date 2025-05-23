@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import networkx as nx
+import time
 from networkx.algorithms.components import connected_components
 from neo4j import GraphDatabase
 from django.conf import settings
@@ -8,7 +9,7 @@ from .models import ConsolidadoSpoa, PersonasDf
 from myproject.neo4j_driver import Neo4jConnection
 
 
-def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
+def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000, grafo_existente=None):
     """
     Crea una red no dirigida a partir de los datos del consolidado SPOA.
     Optimizada para archivos grandes de más de un millón de registros.
@@ -21,11 +22,15 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
     Returns:
         G: El grafo de networkx creado
     """
-    import time
     start_time = time.time()
     
-    # Crear un grafo no dirigido
-    G = nx.Graph()
+    # Crear un grafo no dirigido o usar el existente
+    if grafo_existente is not None:
+        G = grafo_existente
+        print(f"Usando grafo existente con {G.number_of_nodes()} nodos y {G.number_of_edges()} enlaces")
+    else:
+        G = nx.Graph()
+        print("Creando un nuevo grafo")
     
     # Contador para mostrar progreso
     processed_rows = 0
@@ -39,7 +44,7 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
         # Si solo se usa nunc se puede usar enumerate(pd.read_csv(ruta_archivo, chunksize=chunksize, usecols=['nunc'], sep="|"))
         # En caso contrario quitar la opción usecols
         print("Primera pasada: Agregando nodos NUNC...")
-        for chunk_idx, chunk in enumerate(pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|")):
+        for chunk_idx, chunk in enumerate(pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|", dtype={'nunc': str})):
             nunc_counter = 0
             for _, row in chunk.iterrows():
                 nunc = str(row.get('nunc', '')).strip()
@@ -48,6 +53,7 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
                 unidad = str(row.get('unidad', '')).strip()
                 despacho = str(row.get('despacho', '')).strip()
                 fuente = str(row.get('fuente', '')).strip()
+                color = "#e63946"
                 if nunc and nunc not in G:
                     G.add_node(nunc, 
                                 name=nunc, 
@@ -56,7 +62,8 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
                                 seccional=seccional,
                                 unidad=unidad,
                                 despacho=despacho,
-                                fuente=fuente
+                                fuente=fuente,
+                                color=color
                             )
                     nunc_counter += 1
             
@@ -75,19 +82,20 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
         # Diccionario para almacenar el nombre de las personas (evita duplicados)
         personas_nombres = {}
         
-        for chunk_idx, chunk in enumerate(pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|")):
+        for chunk_idx, chunk in enumerate(pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|", dtype={'nunc': str, 'numero_documento': str})):
             # Procesar el chunk
             for _, row in chunk.iterrows():
                 nunc = str(row.get('nunc', '')).strip()
                 numero_documento = str(row.get('numero_documento', '')).strip()
                 nombre_completo = str(row.get('nombre_completo', '')).strip()
+                color = "#26C6DA"
                 calidad_vinculado = str(row.get('calidad_vinculado', '')).strip()
                 
                 if nunc and numero_documento:
                     # Guardar el nombre de la persona si no existe
                     if numero_documento not in personas_nombres:
                         personas_nombres[numero_documento] = nombre_completo
-                        G.add_node(numero_documento, name=nombre_completo, tipo='persona')
+                        G.add_node(numero_documento, name=nombre_completo, tipo='persona', color=color)
                         persona_counter += 1
                     
                     # Crear enlace entre NUNC y PERSONA
@@ -122,7 +130,8 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
                             seccional=spoa.seccional,
                             unidad=spoa.unidad,
                             despacho=spoa.despacho,
-                            fuente=spoa.fuente
+                            fuente=spoa.fuente,
+                            color = "#e63946"
                         )
                 count += 1
                 if count % 10000 == 0:
@@ -137,7 +146,8 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
             for persona in PersonasDf.objects.all()[i:i+batch_size]:
                 G.add_node(persona.numero_identificacion, 
                            name=persona.nombre_completo,
-                           tipo='persona')
+                           tipo='persona',
+                           color="#26C6DA")
                 count += 1
                 if count % 10000 == 0:
                     print(f"Procesados {count} nodos PERSONA")
@@ -157,6 +167,7 @@ def crear_red_desde_consolidado(ruta_archivo=None, chunksize=50000):
                 count += 1
                 if count % 10000 == 0:
                     print(f"Procesados {count} registros, {edge_count} enlaces creados")
+    
     
     print("Calculando componentes conectadas...")
     # Calcular componentes conectadas y asignarlas como atributo
@@ -534,5 +545,128 @@ def ejecutar_flujo_completo(ruta_archivo=None, calcular_metricas=True):
             actualizar_metricas_en_neo4j(G)
         except Exception as e:
             print(f"Error al actualizar métricas en Neo4j: {str(e)}")
+    
+    return G
+
+def crear_red_desde_json(json_nodos, json_enlaces, G=None):
+    """
+    Crea una red a partir de datos JSON de nodos y enlaces, o añade estos elementos a una red existente.
+    
+    Args:
+        json_nodos: Datos JSON de nodos con atributos directos como llaves
+                    Formato: [{"id": id, "atributo1": valor1, ...}, ...]
+        json_enlaces: Datos JSON de enlaces con formato 
+                      [{"source": id_source, "target": id_target, "tipo": tipo, ...}, ...]
+        G: Grafo de networkx existente al que se añadirán los nodos y enlaces (opcional)
+    
+    Returns:
+        G: El grafo de networkx creado o actualizado
+    """
+    start_time = time.time()
+    
+    # Si no se proporciona un grafo, crear uno nuevo
+    if G is None:
+        G = nx.Graph()
+        print("Creando un nuevo grafo para la red de entidades")
+    else:
+        print(f"Añadiendo a un grafo existente con {len(G.nodes)} nodos y {len(G.edges)} enlaces")
+    
+    # Contador para mostrar progreso
+    nodos_procesados = 0
+    nodos_nuevos = 0
+    
+    # Agregar nodos
+    print("Procesando nodos desde JSON...")
+    for nodo in json_nodos:
+        # Verificar que el nodo tenga ID
+        if 'id' not in nodo:
+            print(f"ADVERTENCIA: Nodo sin ID encontrado, ignorando: {nodo}")
+            continue
+        
+        nodo_id = nodo['id']
+        
+        # Extraer todos los atributos del nodo directamente
+        attrs = {}
+        for key, value in nodo.items():
+            if key != 'id':  # No incluir el ID como atributo
+                attrs[key] = value
+        
+        # Eliminar ' de los nunc
+        if attrs.get('tipo') == 'nunc':
+            attrs['id'] = str(nodo_id.replace("'", ""))
+            attrs['nunc'] = str(attrs['nunc'].replace("'", ""))
+            nodo_id = attrs['id']
+        
+        # Eliminar ' de los nunc
+        if attrs.get('tipo') == 'persona':
+            attrs['id'] = str(nodo_id.replace("'", ""))
+            attrs['nunc'] = str(attrs['nunc'].replace("'", ""))
+            nodo_id = attrs['id']
+        
+        # Si el nodo ya existe, actualizamos sus atributos
+        if G.has_node(nodo_id):
+            # Actualizar atributos existentes sin borrar los que ya estaban
+            for key, value in attrs.items():
+                G.nodes[nodo_id][key] = value
+        else:
+            # Agregar nuevo nodo con todos sus atributos
+            G.add_node(nodo_id, **attrs)
+            nodos_nuevos += 1
+        
+        nodos_procesados += 1
+        
+        if nodos_procesados % 10000 == 0:
+            print(f"Procesados {nodos_procesados} nodos desde JSON, {nodos_nuevos} son nuevos")
+    
+    # Contador para enlaces
+    enlaces_procesados = 0
+    enlaces_nuevos = 0
+    
+    # Agregar enlaces
+    print("Procesando enlaces desde JSON...")
+    for enlace in json_enlaces:
+        # Verificar que los campos obligatorios estén presentes
+        if 'from' not in enlace or 'to' not in enlace:
+            print(f"ADVERTENCIA: Enlace sin source/target encontrado, ignorando: {enlace}")
+            continue
+        
+        source = enlace.get('from')
+        target = enlace.get('to')
+        
+        source = source.replace("'", "")
+        target = target.replace("'", "")
+        
+        # Extraer todos los atributos del enlace directamente
+        attrs = {}
+        for key, value in enlace.items():
+            if key not in ['from', 'to']:  # No incluir source/target como atributos
+                attrs[key] = value
+        
+        # Verificar si los nodos existen, si no, crearlos con atributos mínimos
+        for node_id, node_type in [(source, 'from'), (target, 'to')]:
+            if not G.has_node(node_id):
+                print(f"ADVERTENCIA: Nodo {node_type} '{node_id}' no encontrado en datos de nodos, creando nodo básico")
+                G.add_node(node_id, tipo='entidad', creado_desde_enlace=True)
+                nodos_nuevos += 1
+        
+        # Si el enlace ya existe, actualizamos sus atributos
+        if G.has_edge(source, target):
+            # Actualizar atributos existentes sin borrar los que ya estaban
+            for key, value in attrs.items():
+                G[source][target][key] = value
+        else:
+            # Agregar nuevo enlace con todos sus atributos
+            G.add_edge(source, target, **attrs)
+            enlaces_nuevos += 1
+        
+        enlaces_procesados += 1
+        
+        if enlaces_procesados % 10000 == 0:
+            print(f"Procesados {enlaces_procesados} enlaces desde JSON, {enlaces_nuevos} son nuevos")
+    
+    tiempo_total = time.time() - start_time
+    print(f"Red creada/actualizada con datos JSON: {nodos_nuevos} nuevos nodos y {enlaces_nuevos} nuevos enlaces")
+    print(f"Tiempo total para procesar datos JSON: {tiempo_total:.2f} segundos")
+    print(f"Estado actual del grafo: {len(G.nodes)} nodos y {len(G.edges)} enlaces totales")
     
     return G

@@ -22,6 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Incluir las URLs de la app dashboard
     path('dashboard/', include('dashboard.urls', namespace='dashboard')),
+    # Incluir las URLs de la app networks
+    path('networks/', include('networks.urls', namespace='networks')),
     # Opcional: redireccionar la página principal al dashboard
     path('', include('dashboard.urls', namespace='dashboard_root')),
 ]

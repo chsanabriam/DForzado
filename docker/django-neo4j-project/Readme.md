@@ -24,9 +24,7 @@ django-neo4j-project/
 │   │   ├── img/             # Imágenes globales
 │   │   ├── vendors/         # Librerías de terceros
 │   │   ├── dashboard/       # Estáticos específicos del dashboard
-│   │   │   ├── css/
-│   │   │   ├── js/
-│   │   │   └── img/
+│   │   │ 
 │   │   └── otra_app/        # Estáticos para otras apps
 │   ├── templates/           # Templates globales
 │   │   ├── base.html        # Template base
@@ -377,3 +375,133 @@ Este proyecto está configurado principalmente para desarrollo. Para un entorno 
 - **Docker Compose**: Herramienta para definir y ejecutar aplicaciones Docker multi-contenedor
 - **Bootstrap**: Framework CSS para la interfaz de usuario
 - **Chart.js**: Biblioteca JavaScript para visualización de datos
+
+# Estructura JavaScript del Dashboard
+
+Este documento detalla la estructura de archivos JavaScript utilizados en el dashboard del proyecto.
+
+## Estructura de Carpetas
+
+```
+django-neo4j-project/
+└── django/
+    └── static/
+        ├── css/
+        │   └── style.css            # Estilos globales
+        ├── js/
+        │   ├── dashboard/           # Scripts específicos del dashboard
+        │   │   ├── utils.js         # Funciones de utilidad comunes
+        │   │   ├── fuentes.js       # Funcionalidad para sección de fuentes
+        │   │   ├── seccionales.js   # Funcionalidad para sección de seccionales
+        │   │   ├── necropsias.js    # Funcionalidad para sección de necropsias
+        │   │   ├── delitos.js       # Funcionalidad para sección de delitos
+        │   │   └── main.js          # Script principal que inicializa todo
+        │   └── otra_app/            # Scripts para otras apps (si es necesario)
+        └── vendors/                 # Librerías de terceros
+            ├── chart.js/            # Para gráficos
+            ├── highcharts/          # Para treemap
+            └── bootstrap/           # Framework CSS
+```
+
+## Descripción de los Archivos JavaScript
+
+### 1. `utils.js`
+
+Contiene funciones de utilidad generales usadas en todo el dashboard:
+
+- Configuración global para Chart.js
+- Generación de colores aleatorios para gráficos
+- Formateo de números
+- Gestión de paginación
+- Visualización de detalles de registros
+- Exportación de tablas a CSV
+
+### 2. `fuentes.js`
+
+Maneja la visualización de la distribución por fuente:
+
+- Gráfico de tipo donut para mostrar la distribución
+- Interactividad al hacer clic en las secciones del gráfico
+- Carga de datos filtrados por fuente seleccionada
+- Visualización de tabla paginada con los registros
+
+### 3. `seccionales.js`
+
+Gestiona la visualización de la distribución por seccional:
+
+- Creación del treemap para visualizar seccionales
+- Gráficos de barras horizontales para unidades y despachos
+- Carga de datos anidados (unidades y despachos por seccional)
+- Visualización de tabla paginada con los registros
+
+### 4. `necropsias.js`
+
+Maneja la visualización de la distribución por necropsia:
+
+- Gráfico de tipo donut para mostrar la distribución
+- Interactividad al hacer clic en las secciones del gráfico
+- Carga de datos filtrados por necropsia seleccionada
+- Visualización de tabla paginada con los registros
+
+### 5. `delitos.js`
+
+Gestiona el análisis de personas por delitos:
+
+- Interactividad en las tarjetas de delitos
+- Visualización de intersecciones entre delitos
+- Actualización dinámica del gráfico según el delito seleccionado
+
+### 6. `main.js`
+
+Script principal que inicializa todos los componentes:
+
+- Inicialización de todos los gráficos cuando el DOM está cargado
+- Configuración de botones de exportación
+- Manejo de actualizaciones de datos en tiempo real (simulado)
+- Sistema de notificaciones
+
+## Uso en la Aplicación
+
+Los scripts se incluyen en `dashboard.html` de la siguiente manera:
+
+```html
+{% block js %}
+<!-- Librerías de terceros -->
+<script src="{% static 'vendors/chart.js/chart.min.js' %}"></script>
+<script src="{% static 'vendors/highcharts/highcharts.js' %}"></script>
+<script src="{% static 'vendors/highcharts/modules/treemap.js' %}"></script>
+<script src="{% static 'vendors/highcharts/modules/exporting.js' %}"></script>
+
+<!-- Datos del backend para usar en JavaScript -->
+<script>
+    // Datos que vienen del backend
+    const dashboardData = {
+        totalSpoa: {{ total_spoa }},
+        totalPersonas: {{ total_personas }},
+        // Otros datos...
+    };
+</script>
+
+<!-- Scripts del dashboard -->
+<script src="{% static 'js/dashboard/utils.js' %}"></script>
+<script src="{% static 'js/dashboard/fuentes.js' %}"></script>
+<script src="{% static 'js/dashboard/seccionales.js' %}"></script>
+<script src="{% static 'js/dashboard/necropsias.js' %}"></script>
+<script src="{% static 'js/dashboard/delitos.js' %}"></script>
+<script src="{% static 'js/dashboard/main.js' %}"></script>
+{% endblock %}
+```
+
+## Consideraciones para la implementación
+
+1. **Requisitos para instalar las dependencias**:
+   - Chart.js (v3.x)
+   - Highcharts (para el treemap)
+   - Bootstrap 5.x para los estilos
+
+2. **Backend**: 
+   - Las rutas de API mencionadas en los archivos JS deben implementarse en las vistas de Django.
+   - Los datos deben seguir el formato esperado por los scripts.
+
+3. **Orden de carga**:
+   - Los scripts deben cargarse en el orden especificado para garantizar que las dependencias se resuelvan correctamente.

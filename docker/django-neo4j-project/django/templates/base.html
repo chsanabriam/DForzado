@@ -17,7 +17,7 @@
 </head>
 <body>
     <!-- Navbar principal -->
-    <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+    <nav class="navbar navbar-custom navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'dashboard:index' %}">Dashboard Analytics</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -44,6 +44,12 @@
             </div>
         </div>
     </nav>
+
+    <!-- Barra de título con logo -->
+    <div class="title-bar">
+        <img src="{% static 'img/fiscalia_logo.png' %}" alt="Fiscalía General de la Nación" class="fiscalia-logo">
+        <div class="title-text">Nexus Crime: Relacionador de Noticias Criminales</div>
+    </div>
     
     <!-- Contenido principal -->
     {% block content %}{% endblock %}

@@ -1,9 +1,10 @@
 import pandas as pd
 import csv
 import os
+import json
 from datetime import datetime
-from django.db import transaction
-from .models import ConsolidadoSpoa, PersonasDf, RegistroUnicoDesaparecidos
+from django.db import transaction, IntegrityError
+from .models import ConsolidadoSpoa, PersonasDf, RegistroUnicoDesaparecidos, PerfilPersona, AparecidosVivosNoRegistrados, Funcionario
 
 def parse_date(date_str):
     """
@@ -51,7 +52,7 @@ def cargar_consolidado_spoa(ruta_archivo):
     
     if extension.lower() == '.csv':
         # Leer el archivo en chunks para manejar archivos grandes
-        for chunk in pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|"):
+        for chunk in pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|", dtype={'nunc': str}):
             registros = []
             
             for _, row in chunk.iterrows():
@@ -70,9 +71,12 @@ def cargar_consolidado_spoa(ruta_archivo):
                     grupo_delito=str(row.get('grupo_delito', '')).strip(),
                     necropsia=str(row.get('necropsia', '')).strip(),
                     fuente=str(row.get('fuente', '')).strip(),
-                    calidad_vinculado=str(row.get('calidad_vinculado', '')).strip()
+                    calidad_vinculado=str(row.get('calidad_vinculado', '')).strip(),
+                    estado=str(row.get('estado', '')).strip(),
+                    etapa=str(row.get('etapa', '')).strip()
                 )
                 registros.append(registro)
+                # Intentar guardar el registro
             
             # Insertar en bulk (mucho más eficiente que uno por uno)
             # El parámetro ignore_conflicts evita errores por duplicados
@@ -119,6 +123,10 @@ def cargar_personas_df(ruta_archivo):
                 secuestro = row.get('secuestro', 0)
                 reclutamiento = row.get('reclutamiento_ilicito', 0)
                 rud = row.get('rud', 0)
+                rud_desaparecido = row.get('1.0', 0)
+                rud_vivo = row.get('2.0', 0)
+                rud_muerto = row.get('3.0', 0)
+                funcionario = row.get('funcionario', 0)
                 
                 # Asegurarse de que los valores sean enteros o booleanos antes de la conversión
                 if not pd.isna(desaparicion):
@@ -146,6 +154,26 @@ def cargar_personas_df(ruta_archivo):
                 else:
                     rud = False
                 
+                if not pd.isna(rud_desaparecido):
+                    rud_desaparecido = int(rud_desaparecido) == 1
+                else:
+                    rud_desaparecido = False
+                    
+                if not pd.isna(rud_vivo):
+                    rud_vivo = int(rud_vivo) == 1
+                else:
+                    rud_vivo = False
+                    
+                if not pd.isna(rud_muerto): 
+                    rud_muerto = int(rud_muerto) == 1
+                else:
+                    rud_muerto = False
+                    
+                if not pd.isna(funcionario): 
+                    funcionario = int(funcionario) == 1
+                else:
+                    funcionario = False
+                
                 registro = PersonasDf(
                     numero_identificacion=str(row.get('numero_documento', '')).strip(),
                     nombre_completo=str(row.get('nombre_completo', '')).strip(),
@@ -153,7 +181,11 @@ def cargar_personas_df(ruta_archivo):
                     homicidio=homicidio,
                     secuestro=secuestro,
                     reclutamiento_ilicito=reclutamiento,
-                    rud=rud
+                    rud=rud,
+                    rud_desaparecido=rud_desaparecido,
+                    rud_vivo=rud_vivo,
+                    rud_muerto=rud_muerto,
+                    funcionario_FGN=funcionario
                 )
                 registros.append(registro)
             
@@ -218,6 +250,170 @@ def cargar_rud(ruta_archivo):
             # Insertar en bulk (mucho más eficiente que uno por uno)
             # El parámetro ignore_conflicts evita errores por duplicados
             RegistroUnicoDesaparecidos.objects.bulk_create(registros, ignore_conflicts=True)
+            counter += len(registros)
+            
+        return counter
+    else:
+        raise ValueError(f"Formato de archivo no soportado: {extension}")
+
+
+@transaction.atomic
+def cargar_perfiles_personas(ruta_archivo):
+    """
+    Carga perfiles de personas desde un archivo JSON al modelo PerfilPersona
+    
+    Args:
+        ruta_archivo: Ruta al archivo JSON que contiene los perfiles
+        
+    Returns:
+        int: Número de perfiles cargados
+    """
+    # Verificar que el archivo existe
+    if not os.path.exists(ruta_archivo):
+        raise FileNotFoundError(f"El archivo {ruta_archivo} no existe")
+    
+    # Verificar la extensión del archivo
+    _, extension = os.path.splitext(ruta_archivo)
+    
+    if extension.lower() != '.json':
+        raise ValueError(f"El archivo debe ser .json, no {extension}")
+    
+    # Leer archivo JSON
+    with open(ruta_archivo, 'r', encoding='utf-8') as file:
+        perfiles_data = json.load(file)
+    
+    # Lista para almacenar los perfiles a crear
+    perfiles = []
+    counter = 0
+    
+    # Procesar cada perfil en el JSON
+    for documento, datos in perfiles_data.items():
+        try:
+            perfil = PerfilPersona(
+                documento=documento,
+                nombre=datos.get('nombre', ''),
+                total_casos=datos.get('total_casos', 0),
+                perfil=datos.get('perfil', ''),
+                error=datos.get('error', None),
+                tiempo_generacion=datos.get('tiempo_generacion', None)
+            )
+            perfiles.append(perfil)
+        except Exception as e:
+            print(f"Error al procesar perfil {documento}: {str(e)}")
+            continue
+    
+    # Insertar en bulk (mucho más eficiente que uno por uno)
+    # El parámetro ignore_conflicts evita errores por duplicados
+    PerfilPersona.objects.bulk_create(perfiles, ignore_conflicts=True)
+    counter = len(perfiles)
+            
+    return counter
+
+
+@transaction.atomic
+def cargar_aparecidos_vivos_no_registrados(ruta_archivo):
+    """
+    Carga datos desde un archivo CSV al modelo AparecidosVivosNoRegistrados
+    
+    Args:
+        ruta_archivo: Ruta al archivo CSV que contiene los datos
+        
+    Returns:
+        int: Número de registros cargados
+    """
+    # Verificar que el archivo existe
+    if not os.path.exists(ruta_archivo):
+        raise FileNotFoundError(f"El archivo {ruta_archivo} no existe")
+    
+    # Si el archivo es muy grande, usar chunks con pandas
+    chunksize = 10000
+    counter = 0
+    
+    # Verificar la extensión del archivo
+    _, extension = os.path.splitext(ruta_archivo)
+    
+    if extension.lower() == '.csv':
+        # Leer el archivo en chunks para manejar archivos grandes
+        for chunk in pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|"):
+            registros = []
+            
+            for _, row in chunk.iterrows():
+                # Crear objeto pero no guardar aún (bulk_create es más eficiente)
+                registro = AparecidosVivosNoRegistrados(
+                    numeroRadicado=str(row.get('numeroRadicado', '')).strip(),
+                    entidadradica=str(row.get('entidadradica', '')).strip(),
+                    nombreRegional=str(row.get('nombreRegional', '')).strip(),
+                    nombreSeccional=str(row.get('nombreSeccional', '')).strip(),
+                    nombreUnidadBasica=str(row.get('nombreUnidadBasica', '')).strip(),
+                    usuarioRegistra=str(row.get('usuarioRegistra', '')).strip(),
+                    fechaDesaparicion=parse_date(row.get('fechaDesaparicion')),
+                    desaparecido=str(row.get('desaparecido', '')).strip(),
+                    nombreDocumento=str(row.get('nombreDocumento', '')).strip(),
+                    numero=str(row.get('numero_documento', '')).strip(),
+                    paisDesaparicion=str(row.get('paisDesaparicion', '')).strip(),
+                    departamentoDesaparicion=str(row.get('departamentoDesaparicion', '')).strip(),
+                    municipioDesaparicion=str(row.get('municipioDesaparicion', '')).strip(),
+                    aportanteDatosDesaparecido=str(row.get('aportanteDatosDesaparecido', '')).strip(),
+                    paisAportanteDatos=str(row.get('paisAportanteDatos', '')).strip(),
+                    departamentoAportanteDatos=str(row.get('departamentoAportanteDatos', '')).strip(),
+                    municipioAportanteDatos=str(row.get('municipioAportanteDatos', '')).strip(),
+                    detalleDireccionAportanteDatos=str(row.get('detalleDireccionAportanteDatos', '')),
+                    aportanteDatos=str(row.get('aportanteDatos', '')).strip()
+                )
+                registros.append(registro)
+            
+            # Insertar en bulk (mucho más eficiente que uno por uno)
+            # El parámetro ignore_conflicts evita errores por duplicados
+            AparecidosVivosNoRegistrados.objects.bulk_create(registros, ignore_conflicts=True)
+            counter += len(registros)
+            
+        return counter
+    else:
+        raise ValueError(f"Formato de archivo no soportado: {extension}")
+    
+@transaction.atomic
+def cargar_funcionarios(ruta_archivo):
+    """
+    Carga datos de funcionarios desde un archivo CSV al modelo Funcionario
+    
+    Args:
+        ruta_archivo: Ruta al archivo CSV que contiene los datos
+        
+    Returns:
+        int: Número de registros cargados
+    """
+    # Verificar que el archivo existe
+    if not os.path.exists(ruta_archivo):
+        raise FileNotFoundError(f"El archivo {ruta_archivo} no existe")
+    
+    # Si el archivo es muy grande, usar chunks con pandas
+    chunksize = 10000
+    counter = 0
+    
+    # Verificar la extensión del archivo
+    _, extension = os.path.splitext(ruta_archivo)
+    
+    if extension.lower() == '.csv':
+        # Leer el archivo en chunks para manejar archivos grandes
+        for chunk in pd.read_csv(ruta_archivo, chunksize=chunksize, sep="|"):
+            registros = []
+            
+            for _, row in chunk.iterrows():
+                # Crear objeto pero no guardar aún (bulk_create es más eficiente)
+                registro = Funcionario(
+                    numero_documento=str(row.get('numero_documento', '')).strip(),
+                    nombres_apellidos=str(row.get('nombres_apellidos', '')).strip(),
+                    nom_cargo=str(row.get('nom_cargo', '')).strip(),
+                    seccional=str(row.get('seccional', '')).strip(),
+                    nom_dependencia=str(row.get('nom_dependencia', '')).strip(),
+                    estado=str(row.get('estado', '')).strip(),
+                    fuente=str(row.get('fuente', '')).strip()
+                )
+                registros.append(registro)
+            
+            # Insertar en bulk (mucho más eficiente que uno por uno)
+            # El parámetro ignore_conflicts evita errores por duplicados
+            Funcionario.objects.bulk_create(registros, ignore_conflicts=True)
             counter += len(registros)
             
         return counter

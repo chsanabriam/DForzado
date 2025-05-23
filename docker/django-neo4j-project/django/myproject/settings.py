@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     # Tus aplicaciones aquí
     'dashboard',
+    'networks',
 ]
 
 MIDDLEWARE = [
@@ -88,6 +89,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
+# ===================================
+# CONFIGURACIÓN DE BASE DE DATOS
+# ===================================
+
+# CAMBIO: Usar PostgreSQL como base principal
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'django_neo4j_db'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres123'),
+        'HOST': os.getenv('POSTGRES_HOST', 'postgres'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+        'OPTIONS': {
+            'connect_timeout': 60,
+        }
+    }
+}
+
+# Configuración de conexión a PostgreSQL para el motor RAG
+POSTGRES_CONFIG = {
+    'HOST': os.getenv('POSTGRES_HOST', 'postgres'),
+    'PORT': os.getenv('POSTGRES_PORT', '5432'),
+    'DB': os.getenv('POSTGRES_DB', 'django_neo4j_db'),
+    'USER': os.getenv('POSTGRES_USER', 'postgres'),
+    'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres123'),
+}
+
+# ===================================
+# CONFIGURACIÓN DE NEO4J (sin cambios)
+# ===================================
+
+
 # Configuración de Neo4j
 NEO4J_SCHEME = os.getenv('NEO4J_SCHEME', 'bolt')
 NEO4J_HOST = os.getenv('NEO4J_HOST', 'neo4j')
@@ -101,12 +135,117 @@ NEO4J_URI = f"{NEO4J_SCHEME}://{NEO4J_HOST}:{NEO4J_PORT}"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+# ===================================
+# NUEVA: CONFIGURACIÓN DE REDIS/CACHÉ
+# ===================================
+
+CACHES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': f"redis://{os.getenv('REDIS_HOST', 'redis')}:{os.getenv('REDIS_PORT', '6379')}/0",
+        'TIMEOUT': int(os.getenv('CACHE_TIMEOUT', '300')),  # 5 minutos por defecto
+        # 'OPTIONS': {
+        #     'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        # }
     }
 }
+
+# Usar Redis para sessions (opcional pero recomendado)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
+# ===================================
+# NUEVA: CONFIGURACIÓN DE LLM
+# ===================================
+
+# Configuración del proveedor de LLM
+LLM_PROVIDER = os.getenv('LLM_PROVIDER', 'openai')  # openai, anthropic, local
+LLM_MODEL = os.getenv('LLM_MODEL', 'gpt-4')
+LLM_API_URL = os.getenv('LLM_API_URL', '')
+
+# Claves de API
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
+
+# Configuración de embeddings
+EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'text-embedding-ada-002')
+EMBEDDING_CACHE_DIR = os.getenv('EMBEDDING_CACHE_DIR', '/tmp/embeddings')
+
+# ===================================
+# NUEVA: CONFIGURACIÓN DE VECTOR STORE
+# ===================================
+
+USE_VECTOR_STORE = os.getenv('USE_VECTOR_STORE', 'True').lower() == 'true'
+VECTOR_STORE_TYPE = os.getenv('VECTOR_STORE_TYPE', 'postgresql')  # postgresql, qdrant
+VECTOR_STORE_COLLECTION = os.getenv('VECTOR_STORE_COLLECTION', 'knowledge_base')
+
+# Configuración de búsqueda
+MAX_RESULTS_PER_SOURCE = int(os.getenv('MAX_RESULTS_PER_SOURCE', '10'))
+SIMILARITY_THRESHOLD = float(os.getenv('SIMILARITY_THRESHOLD', '0.7'))
+
+# Configuración de caché para LLM
+LLM_CACHE_TIMEOUT = int(os.getenv('LLM_CACHE_TIMEOUT', '3600'))  # 1 hora
+
+# ===================================
+# NUEVA: CONFIGURACIÓN DE LOGGING
+# ===================================
+
+# Crear directorio de logs si no existe
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, 'django.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'llm_integration': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': False,
+        },
+        'dashboard': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
 
 
 # Password validation

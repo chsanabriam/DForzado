@@ -81,3 +81,71 @@ canvas {
         max-height: 250px;
     }
 }
+
+.title-bar {
+    height: 60px;
+    /* background-color: #00519f; /* Azul institucional de la Fiscalía */
+    background-color: var(--color-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #003566;
+    position: relative;
+    z-index: 10;
+    color: white;
+}
+
+.title-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.fiscalia-logo {
+    height: 40px;
+    margin-right: 15px;
+}
+
+/* Aseguramos que en dispositivos móviles el diseño se adapte */
+@media (max-width: 768px) {
+    .title-bar {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+    }
+    
+    .fiscalia-logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .title-text {
+        font-size: 1.2rem;
+    }
+}
+
+/* Variables de colores */
+:root {
+    --color-primary: #00519f; /* Color del fondo de la barra de título */
+    --color-text: #f7f9fa;
+}
+
+/* Personalización del navbar para que use el mismo color */
+.navbar-custom {
+    background-color: var(--color-primary) !important;
+}
+
+.navbar-custom .navbar-brand, 
+.navbar-custom .nav-link {
+    color: var(--color-text) !important;
+}
+
+.navbar-custom .navbar-toggler {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.navbar-custom .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(0, 0, 0, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
