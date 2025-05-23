@@ -1,0 +1,632 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Personas | Dashboard{% endblock %}
+
+{% block css %}
+<!-- En la sección head o donde cargas tus estilos CSS -->
+<link rel="stylesheet" href="{% static 'css/timeline-horizontal.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include 'dashboard/components/sidebar.html' %}
+        
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Personas</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnExportarCSV">Exportar CSV</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnExportarPDF">Exportar PDF</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tarjetas de resumen -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Personas</h5>
+                            <h2 class="card-text">{{ total_personas }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <h6>Desaparición</h6>
+                                    <h4>{{ total_desaparicion }}</h4>
+                                </div>
+                                <div class="col">
+                                    <h6>Homicidio</h6>
+                                    <h4>{{ total_homicidio }}</h4>
+                                </div>
+                                <div class="col">
+                                    <h6>Secuestro</h6>
+                                    <h4>{{ total_secuestro }}</h4>
+                                </div>
+                                <div class="col">
+                                    <h6>Reclutamiento</h6>
+                                    <h4>{{ total_reclutamiento }}</h4>
+                                </div>
+                                <div class="col">
+                                    <h6>RUD</h6>
+                                    <h4>{{ total_rud }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tipos de búsqueda con tabs -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <ul class="nav nav-tabs" id="tiposBusqueda" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="busqueda-nombre-tab" data-bs-toggle="tab" data-bs-target="#busqueda-nombre" type="button" role="tab" aria-controls="busqueda-nombre" aria-selected="true">
+                                <i class="bi bi-search"></i> Búsqueda por Nombre/ID
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="busqueda-delitos-tab" data-bs-toggle="tab" data-bs-target="#busqueda-delitos" type="button" role="tab" aria-controls="busqueda-delitos" aria-selected="false">
+                                <i class="bi bi-filter"></i> Búsqueda por Delitos
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content card" id="tiposBusquedaContent">
+                        <!-- Búsqueda por Nombre/ID -->
+                        <div class="tab-pane fade show active card-body" id="busqueda-nombre" role="tabpanel" aria-labelledby="busqueda-nombre-tab">
+                            <h5 class="card-title">Búsqueda por Nombre o Documento de Identidad</h5>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control" id="inputBusqueda" placeholder="Ingrese nombre o número de documento">
+                                        <button class="btn btn-primary" type="button" id="btnBuscarTexto">Buscar</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button type="button" class="btn btn-outline-secondary" id="btnLimpiarBusquedaTexto">Limpiar</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Búsqueda por Delitos -->
+                        <div class="tab-pane fade card-body" id="busqueda-delitos" role="tabpanel" aria-labelledby="busqueda-delitos-tab">
+                            <h5 class="card-title">Búsqueda por Delitos (operador AND)</h5>
+                            
+                            <div class="row mb-3">
+                                <!-- Selector de Desaparición -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="selectDesaparicion" class="form-label">Desaparición Forzada:</label>
+                                    <select class="form-select filtro-delito" id="selectDesaparicion">
+                                        <option value="cualquiera" selected>Cualquiera</option>
+                                        <option value="si">Sí</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Selector de Homicidio -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="selectHomicidio" class="form-label">Homicidio:</label>
+                                    <select class="form-select filtro-delito" id="selectHomicidio">
+                                        <option value="cualquiera" selected>Cualquiera</option>
+                                        <option value="si">Sí</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Selector de Secuestro -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="selectSecuestro" class="form-label">Secuestro:</label>
+                                    <select class="form-select filtro-delito" id="selectSecuestro">
+                                        <option value="cualquiera" selected>Cualquiera</option>
+                                        <option value="si">Sí</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <!-- Selector de Reclutamiento -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="selectReclutamiento" class="form-label">Reclutamiento Ilícito:</label>
+                                    <select class="form-select filtro-delito" id="selectReclutamiento">
+                                        <option value="cualquiera" selected>Cualquiera</option>
+                                        <option value="si">Sí</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Selector de RUD - MODIFICADO -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="selectRUD" class="form-label">Estado en RUD:</label>
+                                    <select class="form-select filtro-delito" id="selectRUD">
+                                        <option value="cualquiera" selected>Cualquiera</option>
+                                        <option value="no_rud">No en RUD</option>
+                                        <option value="desaparecido">Desaparecido</option>
+                                        <option value="vivo">Vivo</option>
+                                        <option value="muerto">Muerto</option>
+                                    </select>
+                                </div>
+
+                                 <!-- NUEVO: Selector de Funcionario -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="selectFuncionario" class="form-label">Funcionario FGN:</label>
+                                    <select class="form-select filtro-delito" id="selectFuncionario">
+                                        <option value="cualquiera" selected>Cualquiera</option>
+                                        <option value="si">Sí</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-4 d-flex align-items-end mb-3">
+                                    <div class="d-grid gap-2 w-100">
+                                        <button class="btn btn-primary" id="btnBuscarDelitos">Buscar por Delitos</button>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 text-end">
+                                    <button type="button" class="btn btn-outline-secondary" id="btnLimpiarBusquedaDelitos">Limpiar Filtros</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabla de personas -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">Listado de Personas</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownResultados" data-bs-toggle="dropdown" aria-expanded="false">
+                                    10 por página
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownResultados">
+                                    <li><a class="dropdown-item registros-por-pagina" href="#" data-valor="10">10 por página</a></li>
+                                    <li><a class="dropdown-item registros-por-pagina" href="#" data-valor="25">25 por página</a></li>
+                                    <li><a class="dropdown-item registros-por-pagina" href="#" data-valor="50">50 por página</a></li>
+                                    <li><a class="dropdown-item registros-por-pagina" href="#" data-valor="100">100 por página</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="estadoBusqueda" class="alert d-none mb-3">
+                                <!-- Contenido dinámico: estado de la búsqueda -->
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Documento</th>
+                                            <th>Nombre Completo</th>
+                                            <th>Desaparición</th>
+                                            <th>Homicidio</th>
+                                            <th>Secuestro</th>
+                                            <th>Reclutamiento</th>
+                                            <th>RUD</th>
+                                            <th>Funcionario</th>
+                                            <th>Línea de Tiempo</th>
+                                            <th>Resumen</th>
+                                            <th>Subred</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaPersonas">
+                                        <!-- Contenido dinámico -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Paginación -->
+                            <nav aria-label="Paginación de personas">
+                                <ul class="pagination justify-content-center" id="paginacion">
+                                    <!-- Paginación dinámica -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal de Noticias Criminales -->
+<div class="modal fade" id="modalNoticias" tabindex="-1" aria-labelledby="modalNoticiasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNoticiasLabel">Noticias Criminales</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>NUNC</th>
+                                <th>Fecha Hechos</th>
+                                <th>Fecha Denuncia</th>
+                                <th>Delito</th>
+                                <th>Unidad</th>
+                                <th>Fuente</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaNoticias">
+                            <!-- Contenido dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Relato seleccionado:</h6>
+                    <div id="relatoNoticia" class="border p-3 bg-light"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Línea de Tiempo -->
+<div class="modal fade" id="modalTimeline" tabindex="-1" aria-labelledby="modalTimelineLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTimelineLabel">Línea de Tiempo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="timelineContainer">
+                    <!-- Contenido dinámico de la línea de tiempo -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal de Perfil -->
+<div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="modalPerfilLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPerfilLabel">Resumen Persona</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <!-- Imagen de perfil por defecto -->
+                        <div class="text-center mb-3">
+                            <div class="border rounded p-2 mb-2">
+                                <i class="bi bi-person-circle" style="font-size: 8rem;"></i>
+                            </div>
+                            <h5 id="perfilNombre" class="text-center">Nombre Completo</h5>
+                            <p id="perfilDocumento" class="text-center text-muted">Documento</p>
+                        </div>
+                        
+                        <!-- Estadísticas rápidas -->
+                        <div class="list-group mb-3">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Total Casos
+                                <span id="perfilTotalCasos" class="badge bg-primary rounded-pill">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <!-- Estado de los casos -->
+                        <h6>Resumen delitos</h6>
+                        <div id="perfilEstadoCasos" class="mb-3">
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <div class="row g-0">
+                                        <div class="col-md-4 border-end">
+                                            <div class="text-center">
+                                                <h4>Desaparición</h4>
+                                                <span id="perfilEstadoDesaparicion" class="badge bg-danger">No</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 border-end">
+                                            <div class="text-center">
+                                                <h4>Homicidio</h4>
+                                                <span id="perfilEstadoHomicidio" class="badge bg-danger">No</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <h4>Secuestro</h4>
+                                                <span id="perfilEstadoSecuestro" class="badge bg-danger">No</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row g-0">
+                                        <div class="col-md-6 border-end">
+                                            <div class="text-center">
+                                                <h4>Reclutamiento</h4>
+                                                <span id="perfilEstadoReclutamiento" class="badge bg-danger">No</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="text-center">
+                                                <h4>RUD</h4>
+                                                <span id="perfilEstadoRUD" class="badge bg-danger">No</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <h4>Funcionario</h4>
+                                                <span id="perfilEstadoFuncionario" class="badge bg-danger">No</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Perfil de la persona -->
+                        <h6>Resumen</h6>
+                        <div class="bg-light p-3 rounded" style="max-height: 300px; overflow-y: auto;">
+                            <div id="perfilContenido" class="markdown-content">
+                                <p class="text-center text-muted">Cargando resumen...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnExportarPerfil">Exportar Resumen</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Funcionarios Simplificado -->
+<div class="modal fade" id="modalFuncionarios" tabindex="-1" aria-labelledby="modalFuncionariosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalFuncionariosLabel">Información de Funcionario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Información básica del funcionario -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="border rounded p-3 mb-2">
+                                <i class="bi bi-person-badge-fill" style="font-size: 5rem; color: #0d6efd;"></i>
+                            </div>
+                            <h5 id="funcionarioNombre" class="mb-1">Nombre Completo</h5>
+                            <p id="funcionarioDocumento" class="text-muted small">Documento</p>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">Información del Cargo</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Cargo:</strong> <span id="funcionarioCargo">-</span></p>
+                                        <p><strong>Seccional:</strong> <span id="funcionarioSeccional">-</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Dependencia:</strong> <span id="funcionarioDependencia">-</span></p>
+                                        <p><strong>Estado:</strong> <span id="funcionarioEstado" class="badge bg-success">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información adicional básica -->
+                <div class="card mt-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Información adicional</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Fuente:</strong> <span id="funcionarioFuente">-</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Fecha de registro:</strong> <span id="funcionarioFechaRegistro">-</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mostrar mensaje si hay error al cargar -->
+                <div id="funcionarioErrorMsg" class="alert alert-danger d-none">
+                    Error al cargar información del funcionario
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %} <!-- Modal de Perfil -->
+<div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="modalPerfilLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPerfilLabel">Perfil Completo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <!-- Imagen de perfil por defecto -->
+                        <div class="text-center mb-3">
+                            <div class="border rounded p-2 mb-2">
+                                <i class="bi bi-person-circle" style="font-size: 8rem;"></i>
+                            </div>
+                            <h5 id="perfilNombre" class="text-center">Nombre Completo</h5>
+                            <p id="perfilDocumento" class="text-center text-muted">Documento</p>
+                        </div>
+                        
+                        <!-- Estadísticas rápidas -->
+                        <div class="list-group mb-3">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Total Noticias
+                                <span id="perfilTotalNoticias" class="badge bg-primary rounded-pill">0</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Delitos Distintos
+                                <span id="perfilTotalDelitos" class="badge bg-primary rounded-pill">0</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                Primera Aparición
+                                <span id="perfilPrimeraFecha" class="badge bg-secondary rounded-pill">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <!-- Pestañas para diferentes secciones del perfil -->
+                        <ul class="nav nav-tabs" id="perfilTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="resumen-tab" data-bs-toggle="tab" data-bs-target="#resumen" type="button" role="tab" aria-controls="resumen" aria-selected="true">Resumen</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="noticias-tab" data-bs-toggle="tab" data-bs-target="#noticias" type="button" role="tab" aria-controls="noticias" aria-selected="false">Noticias</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="grafico-tab" data-bs-toggle="tab" data-bs-target="#grafico" type="button" role="tab" aria-controls="grafico" aria-selected="false">Gráfico</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="perfilTabsContent">
+                            <!-- Resumen -->
+                            <div class="tab-pane fade show active" id="resumen" role="tabpanel" aria-labelledby="resumen-tab">
+                                <h6>Estado de los casos</h6>
+                                <div id="perfilEstadoCasos" class="mb-3">
+                                    <div class="card mb-2">
+                                        <div class="card-body">
+                                            <div class="row g-0">
+                                                <div class="col-md-4 border-end">
+                                                    <div class="text-center">
+                                                        <h4>Desaparición</h4>
+                                                        <span id="perfilEstadoDesaparicion" class="badge bg-danger">No</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 border-end">
+                                                    <div class="text-center">
+                                                        <h4>Homicidio</h4>
+                                                        <span id="perfilEstadoHomicidio" class="badge bg-danger">No</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="text-center">
+                                                        <h4>Secuestro</h4>
+                                                        <span id="perfilEstadoSecuestro" class="badge bg-danger">No</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row g-0">
+                                                <div class="col-md-6 border-end">
+                                                    <div class="text-center">
+                                                        <h4>Reclutamiento</h4>
+                                                        <span id="perfilEstadoReclutamiento" class="badge bg-danger">No</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="text-center">
+                                                        <h4>RUD</h4>
+                                                        <span id="perfilEstadoRUD" class="badge bg-danger">No</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h6>Fechas relevantes</h6>
+                                <div id="perfilFechasRelevantes" class="bg-light p-3 rounded">
+                                    <div class="timeline-small" id="perfilTimelineResumen">
+                                        <!-- Contenido dinámico -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Noticias -->
+                            <div class="tab-pane fade" id="noticias" role="tabpanel" aria-labelledby="noticias-tab">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>NUNC</th>
+                                                <th>Fecha</th>
+                                                <th>Delito</th>
+                                                <th>Detalles</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="perfilTablaNoticias">
+                                            <!-- Contenido dinámico -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Gráfico -->
+                            <div class="tab-pane fade" id="grafico" role="tabpanel" aria-labelledby="grafico-tab">
+                                <canvas id="perfilGrafico" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnExportarPerfil">Exportar Perfil</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}
+{% endblock %}
+
+{% block js %}
+{% comment %} <!-- Chart.js para la línea de tiempo -->
+<script src="{% static 'vendors/chart.js/chart.min.js' %}"></script> {% endcomment %}
+<!-- Chart.js desde CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Adaptador de fechas para Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<!-- JS específico para la página de personas -->
+<script src="{% static 'js/dashboard/personas.js' %}"></script>
+{% endblock %}

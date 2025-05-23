@@ -1,0 +1,296 @@
+/* Estilos para la línea de tiempo horizontal */
+.timeline-horizontal-container {
+    width: 100%;
+    overflow-x: auto;
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+
+.timeline-horizontal {
+    position: relative;
+    white-space: nowrap;
+    min-width: 100%;
+    padding: 30px 0;
+}
+
+/* Línea central horizontal */
+.timeline-horizontal:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #0d6efd;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+/* Eventos individuales */
+.timeline-event {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 15px;
+    width: 250px;
+    text-align: center;
+    z-index: 2;
+}
+
+/* Eventos de hechos (arriba) */
+.timeline-event.hechos {
+    margin-bottom: 80px;
+}
+
+/* Eventos de denuncia (abajo) */
+.timeline-event.denuncia {
+    margin-top: 80px;
+}
+
+/* Contenedor de información del evento */
+.timeline-event-content {
+    background-color: #fff;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: left;
+    word-wrap: break-word;
+    white-space: normal;
+    min-height: 120px;
+    max-height: 180px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+/* Color para hechos */
+.timeline-event.hechos .timeline-event-content {
+    border-top: 4px solid #dc3545;
+}
+
+/* Color para denuncias */
+.timeline-event.denuncia .timeline-event-content {
+    border-top: 4px solid #0d6efd;
+}
+
+/* Efecto hover */
+.timeline-event-content:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+}
+
+/* Líneas conectoras entre eventos y línea central */
+.timeline-event:before {
+    content: '';
+    position: absolute;
+    background-color: #ddd;
+    width: 2px;
+    z-index: 1;
+}
+
+.timeline-event.hechos:before {
+    top: 100%;
+    left: 50%;
+    height: 40px;
+    transform: translateX(-50%);
+}
+
+.timeline-event.denuncia:before {
+    bottom: 100%;
+    left: 50%;
+    height: 40px;
+    transform: translateX(-50%);
+}
+
+/* Puntos de la línea temporal */
+.timeline-event:after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 3px solid;
+    z-index: 2;
+}
+
+.timeline-event.hechos:after {
+    bottom: -48px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-color: #dc3545;
+}
+
+.timeline-event.denuncia:after {
+    top: -48px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-color: #0d6efd;
+}
+
+/* Fecha del evento */
+.timeline-date {
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 14px;
+    padding: 3px 8px;
+    display: inline-block;
+    border-radius: 3px;
+}
+
+.timeline-event.hechos .timeline-date {
+    background-color: #dc354520;
+    color: #dc3545;
+}
+
+.timeline-event.denuncia .timeline-date {
+    background-color: #0d6efd20;
+    color: #0d6efd;
+}
+
+/* Encabezado del evento */
+.timeline-event-header {
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Título del evento */
+.timeline-event-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.timeline-event.hechos .timeline-event-title:before {
+    content: '🔍'; /* Emoji para evento de hechos */
+}
+
+.timeline-event.denuncia .timeline-event-title:before {
+    content: '📋'; /* Emoji para evento de denuncia */
+}
+
+/* Contenido del evento */
+.timeline-event-details {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Mensajes cuando no hay datos */
+.timeline-no-events {
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    margin: 20px auto;
+    max-width: 500px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para etiquetas dentro del evento */
+.timeline-event-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.tag-nunc {
+    background-color: #6c757d20;
+    color: #6c757d;
+}
+
+.tag-delito {
+    background-color: #17a2b820;
+    color: #17a2b8;
+}
+
+/* Botones para navegar por la línea de tiempo */
+.timeline-navigation {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.timeline-navigation button {
+    padding: 5px 15px;
+    margin: 0 5px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.timeline-navigation button:hover {
+    background-color: #e9ecef;
+}
+
+.timeline-navigation button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Leyenda de la línea de tiempo */
+.timeline-legend {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.timeline-legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.timeline-legend-color {
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    border-radius: 50%;
+}
+
+.timeline-legend-hechos {
+    background-color: #dc3545;
+}
+
+.timeline-legend-denuncia {
+    background-color: #0d6efd;
+}
+
+/* Animación para hacer la línea de tiempo más interactiva */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.timeline-event.highlight .timeline-event-content {
+    animation: pulse 1.5s infinite;
+    border-width: 2px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .timeline-event {
+        width: 200px;
+    }
+}

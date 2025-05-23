@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenNet</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/network_style.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico'%}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.2/dist/vis-network.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Cargar nuestro script principal de JavaScript -->
+    <script src="{% static 'js/networks/network_visualizer.js' %}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="title-bar">
+            <img src="{% static 'img/fiscalia_logo.png'%}" alt="Fiscalía General de la Nación" class="fiscalia-logo">
+            <div class="title-text">GenNet: Visualizador de Redes</div>
+        </div>
+
+        <div class="row mt-4">
+            <!-- Panel lateral izquierdo para controles -->
+            <div class="col-md-3">
+                <div class="control-sidebar">
+
+                    <!-- Controles de rendimiento para redes grandes -->
+                    <div class="sidebar-section mt-4" id="performance-controls">
+                        <h5>Optimización de red</h5>
+                        <div id="network-size-info" class="small mb-2 text-muted"></div>
+                        
+                        <div class="network-action-buttons">
+                            <button class="btn btn-sm btn-outline-secondary w-100 mb-2" id="toggle-physics">Desactivar Física</button>
+                            <button class="btn btn-sm btn-outline-secondary w-100" id="toggle-performance-mode">Modo Alto Rendimiento</button>
+                        </div>
+                        
+                        <div class="status-indicators mt-2 small">
+                            <div id="physics-status" class="text-muted">Física: Activada</div>
+                            <div id="performance-mode-status" class="text-muted">Modo: Normal</div>
+                        </div>
+                    </div>
+
+                    <!-- Sección para buscar nodos -->
+                    <div class="sidebar-section mt-4">
+                        <h5>Buscar Nodos</h5>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="node-search" placeholder="Buscar nodo...">
+                            <button class="btn btn-primary" type="button" id="search-btn">Buscar</button>
+                        </div>
+                        <div id="search-results"></div>
+                    </div>
+
+                    <!-- Sección para mostrar nodos conectados -->
+                    <div class="sidebar-section mt-4">
+                        <h5>Nodos Conectados</h5>
+                        <div id="connected-nodes" class="connected-nodes-list">
+                            <p class="text-muted">Busca un nodo para ver sus conexiones</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualización de red -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>Visualización de la Red</h5>
+                        <div class="network-controls">
+                            <button class="btn btn-sm btn-outline-secondary me-2" id="center-network" title="Centrar la visualización">
+                                <i class="bi bi-arrows-fullscreen"></i> Centrar
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary me-2" id="reset-view" title="Restablecer colores y vista">
+                                <i class="bi bi-arrow-counterclockwise"></i> Restablecer
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary export-button" id="download-image" title="Descargar como imagen">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="network-container"></div>
+                        <!-- Tooltip para mostrar información de nodos al hacer hover -->
+                        <div id="node-tooltip"></div>
+                    </div>
+                    <div class="status-bar">
+                        <div class="status-left">
+                            <span id="network-status-message" class="text-muted">Listo para cargar datos</span>
+                        </div>
+                        <div class="status-right">
+                            <span class="status-indicator"><i class="bi bi-info-circle"></i> Use la rueda del ratón para hacer zoom</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script con configuración específica para el visualizador -->
+    <script>
+        // Configuración de URLs para el visualizador
+        const networkConfig = {
+            componentUrl: '/networks/api/component/?node_id={{ node_id }}',
+            centralNodeId: '{{ node_id }}'
+        };
+        
+        // Inicializar el visualizador cuando el documento esté listo
+        $(document).ready(function() {
+            // Inicializar el visualizador con la configuración
+            NetworkVisualizer.init(networkConfig);
+            
+            // Cargar la componente
+            NetworkVisualizer.loadComponent();
+            
+            // Configurar botón de descarga de imagen
+            $('#download-image').click(function() {
+                if (typeof NetworkVisualizer.downloadNetworkImage === 'function') {
+                    NetworkVisualizer.downloadNetworkImage();
+                } else {
+                    alert('La funcionalidad de descarga no está disponible');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
